@@ -1,20 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import MainPage from './src/MainPage';
+// this is needed for native/stack to work
+import 'react-native-gesture-handler'
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Openhey upheyheygheheyhey App.js to start working on your app!</Text>
+    <>
       <StatusBar style="auto" />
-    </View>
+      <MainPage/>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
