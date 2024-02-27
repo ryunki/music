@@ -3,31 +3,31 @@ import {useState, useEffect, useRef}from 'react'
 import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable, Text} from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
-import Svg, { Path } from 'react-native-svg'
+import Svg, { Path, Line, Circle} from 'react-native-svg'
 import { useHeaderHeight } from '@react-navigation/elements'
 import CustomPath from '../components/CustomPath'
 import { COLOR, SPACING } from '../../theme/theme'
 
-const CustomDrawingPage = (
-  {image}
-  // {image,paths,setPaths,currentPath,setCurrentPath,eraseAllPaths}
-  ) => {
+const CustomDrawingPage = ({children}) => {
   const [paths, setPaths] = useState([])
   const [currentPath, setCurrentPath] = useState('')
+
   // without this header height. the drawing will begin from below where user touched
   const headerHeight = useHeaderHeight();
-  
+
+  const {height, width} = Dimensions.get('window')
+  const screenHeight = height - headerHeight
+  const screenWidth = width
+
   const drawToggler = useSelector((state) => state.toggleDraw.toggle)
-  console.log('eraserTogglerRedux: ', drawToggler)
   // this function runs whenever user touches the screen
   const handleDraw = (event, gestureState) => {
-    const { moveX, moveY } = gestureState;
-    // const x = moveX.toFixed(10)
-    // const y = moveY.toFixed(10)
+    const { moveX, moveY } = gestureState
     const newPathSegment = ` ${moveX} ${moveY-headerHeight}`;
     setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY-headerHeight}`))
   };
 
+  // when user toggles to eraser mode
   const handleErase = (event, gestureState) => {
     const { moveX, moveY } = gestureState
 
@@ -35,7 +35,7 @@ const CustomDrawingPage = (
     const eraseY = (Math.round(moveY)-headerHeight).toString()
     
     // if the touched point is less than 10 pixels from the drawing. erase it
-    const tolerance = 10
+    const tolerance = 15
     // filters the drawing to be erased. 
     // iterate through each paintings...
     const filteredPath = paths.filter((path,idx)=> {
@@ -75,21 +75,24 @@ const CustomDrawingPage = (
     onPanResponderMove: drawToggler ? handleDraw : handleErase,
     onPanResponderRelease: handlePanResponderRelease,
   });
+  
+  const onImageLayout = (LayoutEvent) => {
+    console.log('event: ',LayoutEvent.nativeEvent.layout)
+  }
 
-  const eraseAllPaths = () => {
-    console.log('erase')
-    setPaths([]);
-    setCurrentPath('');
-  };
   return (
     <View style={styles.container}>
       <View {...panResponder.panHandlers}>
-        <ImageBackground source={image} resizeMode="contain" style={styles.image}>
-          <Svg style={styles.drawing} height="100%" width="100%">
-            {/* takes coordinates of drawings to display */}
-            <CustomPath paths={paths} currentPath={currentPath} color='black' thickness={5}/>
-          </Svg>
-        </ImageBackground>
+        {/* <ImageBackground onLayout={onImageLayout} source={image} resizeMode="contain" style={styles.image}> */}
+        <Svg style={styles.drawing} height="100%" width="100%">
+          {/* takes coordinates of drawings to display */}
+          <CustomPath paths={paths} currentPath={currentPath} color='black' thickness={5}/>
+          {children}
+        </Svg>
+        
+        {/* </ImageBackground> */}
+      </View>
+      <View>
       </View>
     </View>
   )
@@ -117,5 +120,13 @@ const styles = StyleSheet.create({
    },
   text:{
     color:COLOR.white300,
+  },
+  backgroundPath:{
+    // flex:1,
+    // backgroundColor:'red',
+    // justifyContent:'center',
+    // alignItems:'center',
+    // alignSelf:'center',
+    // flexDirection:'row'
   },
 });
