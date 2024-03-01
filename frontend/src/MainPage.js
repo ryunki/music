@@ -6,8 +6,11 @@ import { StyleSheet, Text, View } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
+import { MaterialIcons } from '@expo/vector-icons'
+
 import DrawStack from './bottomTabs/DrawStack'
 import FingerStack from './bottomTabs/FingerStack'
+import NoteStack from './bottomTabs/NoteStack'
 
 const Tab = createBottomTabNavigator()
 
@@ -17,11 +20,18 @@ const MainPage = () => {
       <Tab.Navigator
        screenOptions={{ headerShown: false }}>
         <Tab.Screen name="DrawStack" component={DrawStack}
-          options={{ tabBarLabel: 'Draw' }}
-        />
-        <Tab.Screen name="FingerStack" title="Finger" component={FingerStack} 
+          options={{ 
+            tabBarLabel: 'Draw',
+            tabBarIcon: ()=> <MaterialIcons name="toys" size={24} color="black" />}}
+          />
+        <Tab.Screen name="NoteStack" component={NoteStack}
+          options={{ 
+            tabBarLabel: 'Note',
+            tabBarIcon: ()=> <MaterialIcons name="toys" size={24} color="black" />}}
+          />
+        {/* <Tab.Screen name="FingerStack" title="Finger" component={FingerStack} 
           options={{ tabBarLabel: 'Finger' }}  
-        />
+        /> */}
       </Tab.Navigator>
     </NavigationContainer>
   )
