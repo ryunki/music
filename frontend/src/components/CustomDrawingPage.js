@@ -9,22 +9,14 @@ import CustomPath from '../components/CustomPath'
 import { COLOR, SPACING } from '../../theme/theme'
 import { interpolatePath } from '../../utils/screenFunctions'
 
-import { pathDataProgress } from '../../store/features/drawing/drawingSlice'
+import { answerPath } from '../../store/features/drawing/drawingSlice'
 import { CORRECT_PATH_TREBLE_CLEF } from '../../constants/constants'
 
-const CustomDrawingPage = ({children, thickness=5, dispatch, totalDistanceOfPath, calculateAccuracy, convertPathToObjectArray}) => {
+const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT}) => {
   const [paths, setPaths] = useState([])
   const [currentPath, setCurrentPath] = useState('')
-  const [accuracy, setAccuracy] = useState(0)
-  const [progression, setProgression] = useState(0)
   // without this header height. the drawing will begin from below where user touched
   const headerHeight = useHeaderHeight();
-
-  const pathData = useSelector((state) => state.pathDataProgress.path)
-
-  const {height, width} = Dimensions.get('window')
-  const screenHeight = height - headerHeight
-  const screenWidth = width
 
   const drawToggler = useSelector((state) => state.toggleDraw.toggle)
 
@@ -32,9 +24,11 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, totalDistanceOfPath
   const handleFirstTouch = (event, gestureState) => {
     const { x0, y0 } = gestureState
     if (drawToggler){
+      // to create a dot when first touched
       setCurrentPath(`${x0} ${y0-headerHeight} ${x0} ${y0-headerHeight}`)
-      dispatch(pathDataProgress(convertPathToObjectArray(CORRECT_PATH_TREBLE_CLEF.split(' '))))
-      console.log('pathData: ',pathData)
+      // reset the answer path
+      dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
+      // console.log('FIRST TOUCH pathData: ',x0, y0-headerHeight , pathData)
     }
   }
   // this function runs whenever user touches the screen
@@ -42,7 +36,10 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, totalDistanceOfPath
     const { moveX, moveY } = gestureState
     const newPathSegment = ` ${moveX} ${moveY-headerHeight}`;
     setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY-headerHeight}`))
-    AnswerPathProgression(currentPath)
+    
+    // calculates how much a user completed the drawing 
+    const currPath = currentPath.split(' ')
+    calculateAccuracy(currPath)
   }
   
   // when user toggles to eraser mode
@@ -92,27 +89,6 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, totalDistanceOfPath
     onPanResponderMove: drawToggler ? handleDraw : handleErase,
     onPanResponderRelease: handlePanResponderRelease,
   });
-  
-  // shows how much a user completed the drawing 
-  const AnswerPathProgression = (currentPath) => {
-    // console.log('currentPath: ',currentPath.split(' '))
-    const currPath = currentPath.split(' ')
-    // get total distance of answerPath
-    const totalDt = totalDistanceOfPath()
-    // get total distance of current path
-    const currPathTotalDt = totalDistanceOfPath(currPath)
-    // console.log('convertAnswerPath: ', answerPath)
-    // answerPath.map(coords)
-    const progressPercentage = currPathTotalDt / 3 / totalDt * 100
-    // console.log('totalDistance: ',currPathTotalDt, totalDt)
-    // console.log('progressPercentage: ',progressPercentage)
-    setProgression(progressPercentage)
-    calculateAccuracy(currPath)
-    // console.log('distance: ',distance)
-    // setAccuracy(accuracy)
-    console.log('pathData: ',pathData)
-    // dispatch(pathDataProgress())
-  }
 
   return (
     <View style={styles.container}>
