@@ -4,7 +4,12 @@ import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable
 import Svg, { Path } from 'react-native-svg'
 
 const CustomPath = ({paths, currentPath, color, thickness}) => {
-  // console.log(paths,'currentPath: ',currentPath)
+  // console.log('currentPath: ',currentPath)
+  // const displayCurrentPath = () =>{
+  //   return currentPath.map((coords,idx)=>(
+  //     console.log(coords)
+  //   ))
+  // }
   return (
     <>
     {/* <Svg style={styles.drawing} height="100%" width="100%"> */}

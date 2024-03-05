@@ -5,10 +5,10 @@ const initialState = {
 }
 
 export const drawingSlice = createSlice({
-  name: 'pathDataProgress',
+  name: 'answerPath',
   initialState,
   reducers: {
-    pathDataProgress: (state, action) => {
+    answerPath: (state, action) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
       // which dete cts changes to a "draft state" and produces a brand new
@@ -19,6 +19,6 @@ export const drawingSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { pathDataProgress } = drawingSlice.actions
+export const { answerPath } = drawingSlice.actions
 
 export default drawingSlice.reducer

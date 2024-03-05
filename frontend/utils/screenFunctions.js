@@ -6,7 +6,8 @@ import {Dimensions} from 'react-native'
 export const screenSize = () => {
   const headerHeight = useHeaderHeight()
   const {height, width} = Dimensions.get('window')
-  const screenHeight = (height - headerHeight).toFixed(0)
+  // const screenHeight = (height - headerHeight).toFixed(0)
+  const screenHeight = (height).toFixed(0)
   const screenWidth = width.toFixed(0)
 
   return {screenHeight, screenWidth}
