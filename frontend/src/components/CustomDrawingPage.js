@@ -1,9 +1,9 @@
 import {useState, useEffect, useRef}from 'react'
 
-import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable, Text} from 'react-native'
+import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable} from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
-import Svg, { Path, Line, Circle} from 'react-native-svg'
+import Svg, { Path, Line, Circle, Text} from 'react-native-svg'
 import { useHeaderHeight } from '@react-navigation/elements'
 import CustomPath from '../components/CustomPath'
 import { COLOR, SPACING } from '../../theme/theme'
@@ -28,7 +28,7 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, 
       setCurrentPath(`${x0} ${y0-headerHeight} ${x0} ${y0-headerHeight}`)
       // reset the answer path
       dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
-      // console.log('FIRST TOUCH pathData: ',x0, y0-headerHeight , pathData)
+      console.log('FIRST TOUCH pathData: ',x0, y0-headerHeight)
     }
   }
   // this function runs whenever user touches the screen
@@ -91,15 +91,14 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, 
   });
 
   return (
-    <View style={styles.container}>
-      <View {...panResponder.panHandlers}>
+    // <View style={styles.container}>
+      <View {...panResponder.panHandlers} style={styles.container}>
         <Svg height="100%" width="100%">
           <CustomPath paths={paths} currentPath={currentPath} color='black' thickness={thickness}/>
           {children}
         </Svg>
       </View>
-      {/* <Text style={styles.progression}>{progression}</Text> */}
-    </View>
+    // </View> 
   )
 }
 
@@ -108,7 +107,8 @@ export default CustomDrawingPage
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
+    width:'100%',
   },
   eraseButton: {
     position: 'absolute',

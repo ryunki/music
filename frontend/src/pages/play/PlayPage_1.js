@@ -44,6 +44,8 @@ import {
   PalanquinDark_600SemiBold,
   PalanquinDark_700Bold,
 } from '@expo-google-fonts/palanquin-dark';
+// import Modal from '../../components/UI/CustomModal'
+import CustomModal from '../../components/UI/CustomModal'
 
 // phone
 const SMALLEST_MOBILE = 3.2
@@ -54,6 +56,8 @@ const LARGE_MOBILE = 5.2
 
 const PlayPage_1 = () => {
   const [isPathCorrect, setIsPathCorrect] = useState({isCompleted:false, progress:0})
+  const [alertMessage, setAlertMessage] = useState('')
+  const [modalVisible, setModalVisible] = useState(false);
   // const [answerPathData, setAnswerPathData] = useState([])
   const { screenHeight, screenWidth } = screenSize()
 
@@ -100,15 +104,23 @@ const PlayPage_1 = () => {
       distance = calculateDistance(firstAnswerCoord, recentUserCoord)
       // if user's touch has reached the point, remove the check point
       if(distance <= adjustedAllowance()){
+        console.log('distance checkpoint : ',distance)
         const trimmedAnswerPath = answerPathRedux.slice(1)
         const progressPercentage = Math.abs((trimmedAnswerPath.length/(SCALED_TREBLE_CLEF_OBJECT.length) * 100).toFixed(0) - 100)
         // update progress
         setIsPathCorrect({isCompleted:false, progress:progressPercentage})
         // update answerPath in redux
         dispatch(answerPath(trimmedAnswerPath))
+
+        // this is the point where user fails 
+      }else if(distance > adjustedAllowance()*2.3){
+        setAlertMessage('Try again!')
+        setModalVisible(true)
       }
     }else{
       setIsPathCorrect({isCompleted:true, progress:100})
+      setAlertMessage('Well done!')
+      setModalVisible(true)
     }
     return distance
   }
@@ -132,13 +144,13 @@ const PlayPage_1 = () => {
 // change the size of SVG graphic according to width
 function adjustedAllowance () {
   if(screenWidth < 375){
-    return 10
+    return 15
   }else if(screenWidth >= 375 && screenWidth < 414){
     return 15
   }else if(screenWidth >= 414 && screenWidth < 600){
     return 20
   }else if(screenWidth >= 600){
-    return 25
+    return 20
   }
 }
 // change the size of SVG graphic according to width
@@ -183,31 +195,39 @@ function adjustedY () {
   }
 }
 
-useEffect(() => {
-  Animated.timing(fadeAnim, {
-    toValue: 100,
-    duration: 1,
-    useNativeDriver: true,
-  }).start();
-  console.log('fade anim')
-}, [fadeAnim]);
+// useEffect(() => {
+//   Animated.timing(fadeAnim, {
+//     toValue: 100,
+//     duration: 1,
+//     useNativeDriver: true,
+//   }).start();
+//   console.log('fade anim')
+// }, [fadeAnim]);
 
 
 if (!fontsLoaded && !fontError) {
   console.log('no loaded')
   return null;
 }
-
+// if(alertMessage==='Try again!'){
+//   return <View><Text>{alertMessage}</Text></View>
+// }else if(alertMessage==='Well done!'){
+//   return <View><Text>{alertMessage}</Text></View>
+// }
   return (<>
     <LinearGradientBackground>
+    {modalVisible && <CustomModal modalVisible={modalVisible} setModalVisible={setModalVisible} text={alertMessage}/>}
+
     <CustomDrawingPage 
       thickness={adjustedAllowance()} 
-      // thickness={1} 
       dispatch={dispatch} calculateAccuracy={calculateAccuracy} SCALED_TREBLE_CLEF_OBJECT={SCALED_TREBLE_CLEF_OBJECT} 
     >
+
       <View style={styles.textContainer}>
         <Text style={styles.progessTitle}>Progress</Text>
-        <View style={{width:'100%', alignItems:'center', justifyContent:'center'}}>
+        <View 
+          style={{width:'100%', alignItems:'center', justifyContent:'center'}}
+        >
           <LinearGradient colors={['#391D8A','#7B4CFF',]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: 0 }} locations={[0, 1]}
             style={styles.linearGradientProgressionBar}
             >
@@ -224,25 +244,20 @@ if (!fontsLoaded && !fontError) {
               }]}/>
           </LinearGradient>
           
+          {/* this displays the progression bar */}
           <Text style={styles.progressionText}>
-              {
-                isPathCorrect.isCompleted ? 'Correct!': isPathCorrect.progress+'%'
-              }
+            { `${isPathCorrect.progress}%`}
+              {/* {isPathCorrect.isCompleted ? `${isPathCorrect.progress}%`:  `${isPathCorrect.progress}%`} */}
           </Text>
         </View>
-        </View>
+      </View>
 
       <Defs>
-        <G id='treble-clef-on-staff-line' scale={adjustedScale()} x={adjustedX()} 
-        y={adjustedY()}
-        >
+        <G id='treble-clef-on-staff-line' scale={adjustedScale()} x={adjustedX()} y={adjustedY()}>
           <TrebleClefWithStaffLines opacityTrebleClef={0.1} opacityStaffLines={1}/>
         </G>
       </Defs>
-      <Use
-        href='#treble-clef-on-staff-line'
-        // opacity={0.1}
-      />
+      <Use href='#treble-clef-on-staff-line'/>
       {/* path for checking answer */}
       {/* <Path
         d={'M' + SCALED_TREBLE_CLEF_STRING_ARRAY.join(' ')}
@@ -254,7 +269,7 @@ if (!fontsLoaded && !fontError) {
         opacity={0.5}
       /> */}
     </CustomDrawingPage>
-    
+      
     </LinearGradientBackground>
     </>
   )
@@ -269,12 +284,13 @@ const styles = StyleSheet.create({
     alignItems:'center'
   },
   textContainer:{
-    alignItems:'center',
+    width:'80%',
+    alignSelf:'center',
   },
   progessTitle:{
     marginTop: 20,
     textAlign:'center',
-    width:'100%',
+    // width:'80%',
     fontSize:60,
     fontFamily:"PalanquinDark_400Regular",
     color:'#FFF500',
@@ -303,7 +319,8 @@ const styles = StyleSheet.create({
     shadowColor:'black',
     
     height:60,
-    width:'80%',
+    width:'100%',
+    // flex:1,
 
     // this fill in the gap border of the component and the background color with borderRadius
     borderColor:'black',
