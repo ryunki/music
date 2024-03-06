@@ -8,8 +8,10 @@ import {
   PanResponder,
   Pressable,
   Text,
+  Animated,
+  Platform
 } from 'react-native'
-import Svg, { Path, G, Defs, Use } from 'react-native-svg'
+import Svg, { Path, G, Defs, Use, Stop,Mask,Rect, TSpan, Text as TextSVG, LinearGradient as LinearGradientSVG} from 'react-native-svg'
 import { useHeaderHeight } from '@react-navigation/elements'
 import CustomPath from '../../components/CustomPath'
 import { COLOR, SPACING } from '../../../theme/theme'
@@ -30,6 +32,18 @@ import { useDispatch, useSelector } from 'react-redux'
 import { answerPath } from '../../../store/features/drawing/drawingSlice'
 import TrebleClefWithStaffLines from './components/TrebleClefWithStaffLines'
 import { convertArrayToObject, convertObjectToArray } from '../../../utils/functions/convert'
+import { LinearGradient } from 'expo-linear-gradient'
+import LinearGradientBackground from './components/LinearGradientBackground'
+import StrokedText from '../../components/StrokedText'
+
+// import AppLoading from 'expo-app-loading';
+import {
+  useFonts,
+  PalanquinDark_400Regular,
+  PalanquinDark_500Medium,
+  PalanquinDark_600SemiBold,
+  PalanquinDark_700Bold,
+} from '@expo-google-fonts/palanquin-dark';
 
 // phone
 const SMALLEST_MOBILE = 3.2
@@ -42,9 +56,27 @@ const PlayPage_1 = () => {
   const [isPathCorrect, setIsPathCorrect] = useState({isCompleted:false, progress:0})
   // const [answerPathData, setAnswerPathData] = useState([])
   const { screenHeight, screenWidth } = screenSize()
-  
+
+  const fadeAnim = useRef(new Animated.Value(isPathCorrect.progress)).current; // Initial value for opacity: 0
+
   const answerPathRedux = useSelector((state) => state.answerPath.path)
   const dispatch = useDispatch()
+
+  let [fontsLoaded, fontError] = useFonts({
+    PalanquinDark_400Regular,
+    PalanquinDark_500Medium,
+    PalanquinDark_600SemiBold,
+    PalanquinDark_700Bold,
+  });
+
+  let fontSize = 24;
+  let paddingVertical = 6;
+
+  //  to get the total length of the answerpath for indicating progress
+  // const ANSWER_PATH = changeAnswerPathPosition()
+  // const ANSWER_PATH = convertPathToObjectArray(CORRECT_PATH_TREBLE_CLEF.split(' '))
+  const ANSWER_PATH_ADJUST = { scale:1.1, x:-5, y:-7 }
+  const headerHeight = useHeaderHeight()
 
   // takes ["123","234","345","456"... ] as parameter
   const ANSWER_TREBLE_CLEF = convertArrayToObject(CORRECT_PATH_TREBLE_CLEF.split(' '))
@@ -52,11 +84,6 @@ const PlayPage_1 = () => {
   const SCALED_TREBLE_CLEF_OBJECT = scaleObjectArrayPath(ANSWER_TREBLE_CLEF)
   const SCALED_TREBLE_CLEF_STRING_ARRAY = convertObjectToArray(SCALED_TREBLE_CLEF_OBJECT)
 
-  //  to get the total length of the answerpath for indicating progress
-  // const ANSWER_PATH = changeAnswerPathPosition()
-  // const ANSWER_PATH = convertPathToObjectArray(CORRECT_PATH_TREBLE_CLEF.split(' '))
-  const ANSWER_PATH_ADJUST = { scale:1.1, x:-5, y:-7 }
-  const headerHeight = useHeaderHeight()
   
   // takes current path as parameter
   const calculateAccuracy = (currPath) =>{
@@ -91,13 +118,12 @@ const PlayPage_1 = () => {
   // this function also takes the asnwer path as well as the displayed path as parameter
   // and convert each coords to the specified scale
   function scaleObjectArrayPath(pathObjectArray) {
-    console.log('pathObjectArray: ',pathObjectArray)
+    // console.log('pathObjectArray: ',pathObjectArray)
     let convertedPath = []
     for (let i = 0; i < pathObjectArray.length; i ++){
-      // let x = ((parseInt(pathObjectArray[i].x) + adjustedX()) * adjustedScale()).toFixed(1) 
-      // let y = ((parseInt(pathObjectArray[i].y) + adjustedY()) * adjustedScale()).toFixed(1) 
       let x = (parseInt(pathObjectArray[i].x) * adjustedScale() + adjustedX()).toFixed(1) 
       let y = (parseInt(pathObjectArray[i].y) * adjustedScale() + adjustedY()).toFixed(1) 
+      // let y = (parseInt(pathObjectArray[i].y) * adjustedScale()).toFixed(1) 
       convertedPath = [...convertedPath, {x, y}]
     }
     return convertedPath
@@ -157,67 +183,141 @@ function adjustedY () {
   }
 }
 
-  return (
+useEffect(() => {
+  Animated.timing(fadeAnim, {
+    toValue: 100,
+    duration: 1,
+    useNativeDriver: true,
+  }).start();
+  console.log('fade anim')
+}, [fadeAnim]);
+
+
+if (!fontsLoaded && !fontError) {
+  console.log('no loaded')
+  return null;
+}
+
+  return (<>
+    <LinearGradientBackground>
     <CustomDrawingPage 
-    // thickness={adjustedAllowance()} 
-    thickness={1} 
-    dispatch={dispatch} calculateAccuracy={calculateAccuracy} SCALED_TREBLE_CLEF_OBJECT={SCALED_TREBLE_CLEF_OBJECT} >
-      {/* <TrebleClefOnStaffLines scaleHeight={scaleHeight} lineGap={lineGap} scaleTrebleClef={scaleTrebleClef} lineIdx={lineIdx} trebleclefStartingPointY={trebleclefStartingPointY} trebleclefStartingPointX={trebleclefStartingPointX}/>
-      <G scale={1}> 
-        <Path scale={1} d={'M'+adjustCoords()}  fill="none" 
-          stroke='black'
-          strokeWidth={5} 
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          />
-      </G> */}
+      thickness={adjustedAllowance()} 
+      // thickness={1} 
+      dispatch={dispatch} calculateAccuracy={calculateAccuracy} SCALED_TREBLE_CLEF_OBJECT={SCALED_TREBLE_CLEF_OBJECT} 
+    >
+      <View style={styles.textContainer}>
+        <Text style={styles.progessTitle}>Progress</Text>
+        <View style={{width:'100%', alignItems:'center', justifyContent:'center'}}>
+          <LinearGradient colors={['#391D8A','#7B4CFF',]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: 0 }} locations={[0, 1]}
+            style={styles.linearGradientProgressionBar}
+            >
+            {/* <Animated.View // Special animatable View
+              style={{
+                  width: `${isPathCorrect.progress}%`,
+                  height: 50,
+                  backgroundColor: 'powderblue',
+                  opacity: fadeAnim, // Bind opacity to animated value
+              }}>
+            </Animated.View> */}
+            <LinearGradient colors={['#CE8313','#FFC165',]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: 0 }} locations={[0, 1]}
+              style={[styles.percentageBar,{width: `${isPathCorrect.progress}%`,
+              }]}/>
+          </LinearGradient>
+          
+          <Text style={styles.progressionText}>
+              {
+                isPathCorrect.isCompleted ? 'Correct!': isPathCorrect.progress+'%'
+              }
+          </Text>
+        </View>
+        </View>
+
       <Defs>
-        <G id='treble-clef-on-staff-line' scale={adjustedScale()} x={adjustedX()} y={adjustedY()}>
-          <TrebleClefWithStaffLines/>
+        <G id='treble-clef-on-staff-line' scale={adjustedScale()} x={adjustedX()} 
+        y={adjustedY()}
+        >
+          <TrebleClefWithStaffLines opacityTrebleClef={0.1} opacityStaffLines={1}/>
         </G>
       </Defs>
       <Use
         href='#treble-clef-on-staff-line'
-        opacity={0.1}
+        // opacity={0.1}
       />
       {/* path for checking answer */}
-      <Path
-        // scale={adjustedScale()}
+      {/* <Path
         d={'M' + SCALED_TREBLE_CLEF_STRING_ARRAY.join(' ')}
         fill='none'
         stroke='#fd6f6f'
         strokeWidth={1}
         strokeLinecap='round'
         strokeLinejoin='round'
-        // x={adjustedX()}
-        // y={adjustedY()}
         opacity={0.5}
-      />
-      <View style={styles.progression}>
-        {isPathCorrect.isCompleted ? 
-          <Text style={styles.text}>Correct!!</Text>
-          :
-          <Text style={styles.text}>{isPathCorrect.progress}</Text>
-        }
-      </View>
+      /> */}
     </CustomDrawingPage>
+    
+    </LinearGradientBackground>
+    </>
   )
 }
 
 export default PlayPage_1
 
 const styles = StyleSheet.create({
-  progression:{
-    // flex:1,
-    backgroundColor:COLOR.blue300,
+  linearGradientBackground:{
+    flex:1,
     justifyContent:'center',
+    alignItems:'center'
+  },
+  textContainer:{
     alignItems:'center',
-    position:'absolute',
+  },
+  progessTitle:{
+    marginTop: 20,
+    textAlign:'center',
     width:'100%',
-    height:30,
+    fontSize:60,
+    fontFamily:"PalanquinDark_400Regular",
+    color:'#FFF500',
+    textShadowColor:'black',
+    textShadowRadius:10,
+  },
+  progressionText:{
+    textAlign:'center',
+    color:'#FFF500',
+    fontSize: 35,
+    fontWeight:'bold',
+    zIndex:1,
+    position:'absolute',
+    textShadowColor:'black',
+    textShadowRadius:5,
   },
   text:{
     color:COLOR.white300,
+  },
+  linearGradientProgressionBar:{
+    // this background color is for the component that fill in the gap caused by lineargradient effect
+    backgroundColor:'#5931CD',
+    borderRadius:SPACING.space_10,
+    shadowOpacity:1,
+    elevation: 10,
+    shadowColor:'black',
     
+    height:60,
+    width:'80%',
+
+    // this fill in the gap border of the component and the background color with borderRadius
+    borderColor:'black',
+    borderWidth:4,
+    borderBottomStartRadius:15,
+    borderBottomEndRadius:15,
+    borderTopStartRadius:15,
+    borderTopEndRadius:15,
+
+    overflow: 'hidden'
+  },
+  percentageBar:{
+    backgroundColor: '#FF6B00',
+    height:60,
+    position:'absolute',
   }
 })

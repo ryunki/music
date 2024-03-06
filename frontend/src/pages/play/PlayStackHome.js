@@ -7,6 +7,7 @@ import { COLOR, SPACING } from '../../../theme/theme'
 import { LinearGradient } from 'expo-linear-gradient'
 import TrebleClefWithStaffLines from './components/TrebleClefWithStaffLines'
 import { screenSize } from '../../../utils/screenFunctions'
+import LinearGradientBackground from './components/LinearGradientBackground'
 // import { ScrollView } from 'react-native-gesture-handler'
 
 // phone
@@ -68,15 +69,9 @@ function adjustedY () {
   }
 }
   return (
-    <LinearGradient 
-      colors={['#FDE07A','#C172FF']}
-      start={{ x: 0.5, y: 1 }}
-      end={{ x: 0.5, y: 0 }}
-      locations={[0.1, 0.9]}
-      style={styles.linearGradientBackground}>
+    <LinearGradientBackground>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {stages.map((item,idx)=>(
-            
             <LinearGradient  key={idx}
               colors={['#260C72','#4121A0','#7048E1','#B094FF']}
               start={{ x: 0.5, y: 1 }}
@@ -96,7 +91,7 @@ function adjustedY () {
           ))}
          
         </ScrollView>
-    </LinearGradient>
+      </LinearGradientBackground>
    
   )
 }
