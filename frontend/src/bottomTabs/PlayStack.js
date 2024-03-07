@@ -16,7 +16,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import { toggleDraw } from '../../store/features/drawing/toggleDrawSlice'
 
 import { FontAwesome5, MaterialIcons  } from '@expo/vector-icons'
-
+import { Path, Svg } from 'react-native-svg';
+import { getHeaderTitle } from '@react-navigation/elements';
+import { answerPath } from '../../store/features/drawing/drawingSlice';
 const Stack = createStackNavigator()
 
 const PlayStack = () => {
@@ -25,16 +27,6 @@ const PlayStack = () => {
   const dispatch = useDispatch()
   // console.log('redux: ',toggler)
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('state', (event) => {
-      // Your code to handle the navigation event
-
-      console.log('User is navigating to another screen', event.data.state);
-    });
-
-    unsubscribe();
-  }, [navigation]);
 
   const toggleEraser = () =>{
     console.log('pressed erase')
@@ -50,21 +42,35 @@ const PlayStack = () => {
       console.log('useFocusEffect')
     }, [])
   );
-
+  // const onPressBackButton = () =>{
+  //   navigation.goBack()
+  // }
   return (
     <Stack.Navigator 
       screenOptions={{
+        headerShown: true,
+        headerTransparent: true,
+        headerTitle: '',
+
         // headerShown: false,
         // title:'Select Stages',
-        headerRight: () => 
-        <View style={styles.headerRight}>
-          <Pressable onPress={togglePen}>
-            <MaterialIcons name="draw" size={24} color="black" />
-          </Pressable>
-          <Pressable onPress={toggleEraser}>
-            <FontAwesome5 name="eraser" size={24} color="black" />
-          </Pressable>
-        </View>
+        headerLeft: () =>
+        { 
+          return <Pressable onPress={()=>navigation.goBack()}>
+          <Svg width={50} height={50} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <Path d="M6 12H18M6 12L11 7M6 12L11 17" stroke="#FFF500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </Svg>
+        </Pressable>
+        }
+        // headerRight: () => 
+        // <View style={styles.headerRight}>
+        //   <Pressable onPress={togglePen}>
+        //     <MaterialIcons name="draw" size={24} color="black" />
+        //   </Pressable>
+        //   <Pressable onPress={toggleEraser}>
+        //     <FontAwesome5 name="eraser" size={24} color="black" />
+        //   </Pressable>
+        // </View>
       }}
       // Do something whenever screen changes
       screenListeners={{
