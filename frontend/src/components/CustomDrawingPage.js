@@ -4,16 +4,16 @@ import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable
 import { useSelector, useDispatch } from 'react-redux'
 
 import Svg, { Path, Line, Circle, Text} from 'react-native-svg'
+
 import { useHeaderHeight } from '@react-navigation/elements'
 import CustomPath from '../components/CustomPath'
 import { COLOR, SPACING } from '../../theme/theme'
-import { interpolatePath } from '../../utils/screenFunctions'
 
 import { answerPath } from '../../store/features/drawing/drawingSlice'
-import { CORRECT_PATH_TREBLE_CLEF } from '../../constants/constants'
 
-const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT}) => {
-  const [paths, setPaths] = useState([])
+
+const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT, modalVisible, setAlertMessage, setIsPathCorrect}) => {
+  // const [paths, setPaths] = useState([])
   const [currentPath, setCurrentPath] = useState('')
   // without this header height. the drawing will begin from below where user touched
   const headerHeight = useHeaderHeight();
@@ -25,17 +25,30 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, 
     const { x0, y0 } = gestureState
     if (drawToggler){
       // to create a dot when first touched
-      setCurrentPath(`${x0} ${y0-headerHeight} ${x0} ${y0-headerHeight}`)
+      // setCurrentPath(`${x0} ${y0-headerHeight} ${x0} ${y0-headerHeight}`)
+      setCurrentPath(`${x0} ${y0} ${x0} ${y0}`)
       // reset the answer path
+      console.log('draw toggler first touch')
+      // this resets the answerPath when first touched
       dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
-      console.log('FIRST TOUCH pathData: ',x0, y0-headerHeight)
     }
+    // setAlertMessage('Try again!')
+    setPaths([])
+    // make sure the user's first touch is from the start. 
+    // fail otherwise.
+    const currPath = `${x0} ${y0}`
+    // console.log('FIRST TOUCH pathData: ',x0,y0)
+    const firstTouch = true
+    calculateAccuracy(currPath.split(' '), firstTouch)
   }
+  // console.log('currentPath: ', currentPath)
   // this function runs whenever user touches the screen
   const handleDraw = (event, gestureState) => {
     const { moveX, moveY } = gestureState
-    const newPathSegment = ` ${moveX} ${moveY-headerHeight}`;
-    setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY-headerHeight}`))
+    // const newPathSegment = ` ${moveX} ${moveY-headerHeight}`;
+    // setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY-headerHeight}`))
+    const newPathSegment = ` ${moveX} ${moveY}`
+    setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY}`))
     
     // calculates how much a user completed the drawing 
     const currPath = currentPath.split(' ')
@@ -47,7 +60,8 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, 
     const { moveX, moveY } = gestureState
 
     const eraseX = Math.round(moveX).toString()
-    const eraseY = (Math.round(moveY)-headerHeight).toString()
+    const eraseY = (Math.round(moveY)).toString()
+    // const eraseY = (Math.round(moveY)-headerHeight).toString()
     
     // if the touched point is less than 10 pixels from the drawing. erase it
     const tolerance = 15
@@ -90,14 +104,28 @@ const CustomDrawingPage = ({children, thickness=5, dispatch, calculateAccuracy, 
     onPanResponderRelease: handlePanResponderRelease,
   });
 
+  useEffect(() => {
+    setCurrentPath('')
+    setPaths([])
+    // if user closes the modal
+    if(!modalVisible){
+      setIsPathCorrect({isCompleted: false,progress: 0,})
+    }
+  }, [modalVisible])
+
+  const onPressRetry = () => {
+    console.log('retry ')
+  }
   return (
     // <View style={styles.container}>
+    <>
       <View {...panResponder.panHandlers} style={styles.container}>
         <Svg height="100%" width="100%">
           <CustomPath paths={paths} currentPath={currentPath} color='black' thickness={thickness}/>
           {children}
         </Svg>
       </View>
+     </>
     // </View> 
   )
 }
@@ -123,23 +151,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // width:100
    },
-  text:{
-    color:COLOR.white300,
-  },
-  backgroundPath:{
-    // flex:1,
-    // backgroundColor:'red',
-    // justifyContent:'center',
-    // alignItems:'center',
-    // alignSelf:'center',
-    // flexDirection:'row'
-  },
-  progression:{
-    flex:1,
-    backgroundColor:'red',
-    justifyContent:'center',
-    alignItems:'center',
-    position:'absolute',
-    width:'100%'
-  }
 });

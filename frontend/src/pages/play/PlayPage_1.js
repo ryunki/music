@@ -1,25 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 
-import {
-  ImageBackground,
-  Dimensions,
-  StyleSheet,
-  View,
-  PanResponder,
-  Pressable,
-  Text,
-  Animated,
-  Platform,
-} from 'react-native'
-import Svg, {
-  Path,
-  G,
-  Defs,
-  Use,
-  Stop,
-  Mask,
-  Rect,
-  TSpan,
+import {ImageBackground,Dimensions, StyleSheet,View, PanResponder,Pressable,Text,Animated,Platform,} from 'react-native'
+import Svg, {Path,G,Defs,Use,Stop,Mask,Rect,TSpan,
   Text as TextSVG,
   LinearGradient as LinearGradientSVG,
 } from 'react-native-svg'
@@ -64,28 +46,41 @@ import {
 import CustomModal from '../../components/UI/CustomModal'
 import LinearGradientUI from '../../components/UI/LinearGradientUI'
 import StartingPoint from '../../components/UI/StartingPoint'
+import CustomButton from '../../components/UI/CustomButton';
+import CongratsSVG from '../../components/SVG/CongratsSVG';
 
-// phone
-const SMALLEST_MOBILE = 3.2
+// phone scale
+const SMALLEST_MOBILE = 3
 const SMALL_MOBILE = 3.7
-// Tablet
+// Tablet scale
 const MEDIUM_MOBILE = 4.8
 const LARGE_MOBILE = 5.2
 
 const PlayPage_1 = () => {
+  const [paths, setPaths] = useState([])
   const [isPathCorrect, setIsPathCorrect] = useState({
     isCompleted: false,
     progress: 0,
   })
-  const [alertMessage, setAlertMessage] = useState('')
+  const [alertMessage, setAlertMessage] = useState('Try again!')
   const [modalVisible, setModalVisible] = useState(false)
+  // for buttons
+  const [difficulty, setDifficulty] = useState('Easy')
+  const [buttonPressed, setButtonPressed] = useState(false)
+  // for congrats animation
+  const [showAnimation, setShowAnimation] = useState(false)
+  const translateY = useRef(new Animated.Value(-100)).current
+  const animatedFn = Animated.spring(translateY, {
+    toValue: 0,
+    bounciness:30,
+    useNativeDriver: true, // set to true if possible
+  })
   // const [answerPathData, setAnswerPathData] = useState([])
   const { screenHeight, screenWidth } = screenSize()
+  
   // to detect if current page is focused or not
   const isFocused = useIsFocused()
   const navigation = useNavigation()
-
-  const fadeAnim = useRef(new Animated.Value(isPathCorrect.progress)).current // Initial value for opacity: 0
 
   const answerPathRedux = useSelector((state) => state.answerPath.path)
   const dispatch = useDispatch()
@@ -112,6 +107,8 @@ const PlayPage_1 = () => {
   const SCALED_TREBLE_CLEF_OBJECT = scaleObjectArrayPath(ANSWER_TREBLE_CLEF)
   const SCALED_TREBLE_CLEF_STRING_ARRAY = convertObjectToArray(SCALED_TREBLE_CLEF_OBJECT)
 
+  // console.log('SCALED_TREBLE_CLEF_STRING_ARRAY: ',SCALED_TREBLE_CLEF_STRING_ARRAY)
+
   // takes current path as parameter
   const calculateAccuracy = (currPath, firstTouch = false) => {
     let firstAnswerCoord = []
@@ -127,13 +124,14 @@ const PlayPage_1 = () => {
     // from ["123","234","345"...]  to [{x:"123",y:"234"}...]
     const convertedCurrentPath = convertArrayToObject(currPath)
     // get the latest coord of user path
-    const recentUserCoord =
-      convertedCurrentPath[convertedCurrentPath.length - 1]
+    const recentUserCoord = convertedCurrentPath[convertedCurrentPath.length - 1]
+    let level = difficulty === 'Easy' ? 5 : 3
     let distance = []
     // if the progress is not finished
     if (firstAnswerCoord) {
       // calculateDistance() takes {x:0, y:0} as parameter
       distance = calculateDistance(firstAnswerCoord, recentUserCoord)
+      console.log('distance: ',distance)
       // if user's touch has reached the point, remove the check point
       if (distance <= adjustedAllowance()) {
         // this line of code is important for the first touch after succeed of 100% progress 
@@ -148,10 +146,12 @@ const PlayPage_1 = () => {
         setIsPathCorrect({ isCompleted: false, progress: progressPercentage })
         // update answerPath in redux
         dispatch(answerPath(trimmedAnswerPath))
-        setAlertMessage('Try again!')
+        // setAlertMessage('Try again!')
+        console.log("checkPoint :",distance)
         
         // this is the point where user fails
-      } else if (distance > adjustedAllowance() * 2.3) {
+      } else if (distance > adjustedAllowance() * level) {
+        console.log("Failed :",distance)
         setAlertMessage('Try again!')
         setModalVisible(true)
         // reset the answer path after user failed 
@@ -187,16 +187,43 @@ const PlayPage_1 = () => {
 
   // change the size of SVG graphic according to width
   function adjustedAllowance() {
+    const difficultySmall = difficulty === 'Easy' ? 13 : 9
+    const difficultyBig =  difficulty === 'Easy' ? 13 : 10
     if (screenWidth < 375) {
-      return 15
+      return difficultySmall
     } else if (screenWidth >= 375 && screenWidth < 414) {
-      return 15
+      return difficultySmall 
     } else if (screenWidth >= 414 && screenWidth < 600) {
-      return 20
+      return difficultyBig 
     } else if (screenWidth >= 600) {
-      return 20
+      return difficultyBig
     }
   }
+  // change the size of SVG graphic according to width
+  function Thickness() {
+    const small = 14
+    const tablet =  19
+    if (screenWidth < 375) {
+      return small
+    } else if (screenWidth >= 375 && screenWidth < 414) {
+      return small 
+    } else if (screenWidth >= 414 && screenWidth < 600) {
+      return tablet 
+    } else if (screenWidth >= 600) {
+      return tablet
+    }
+  }
+  // function adjustedAllowance() {
+  //   if (screenWidth < 375) {
+  //     return difficulty ==='Easy' ? 15 : 14
+  //   } else if (screenWidth >= 375 && screenWidth < 414) {
+  //     return difficulty ==='Easy' ? 15 : 14
+  //   } else if (screenWidth >= 414 && screenWidth < 600) {
+  //     return difficulty ==='Easy' ? 20 : 19
+  //   } else if (screenWidth >= 600) {
+  //     return difficulty ==='Easy' ? 20 : 19
+  //   }
+  // }
   // change the size of SVG graphic according to width
   function adjustedScale() {
     if (screenWidth < 375) {
@@ -230,50 +257,78 @@ const PlayPage_1 = () => {
       // this would center the SVG in the screen width
       return screenHeight / 2 - 100 
     } else if (screenWidth >= 375 && screenWidth < 414) {
-      return screenHeight / 2 - 150 
+      return screenHeight / 2 - 100 
     } else if (screenWidth >= 414 && screenWidth < 600) {
       // return screenWidth / 2 - (MEDIUM_MOBILE * 100 / 2)
-      return screenHeight / 2 - 200 
+      return screenHeight / 2 - 180 
     } else if (screenWidth >= 600) {
-      return screenHeight / 2 - 300 
+      return screenHeight / 2 - 180 
     }
   }
+
+  const onPressButton = (text) => {
+    console.log('button pressed!', text)
+    setDifficulty(text)
+  }
+
   useEffect(() => {
     if (isFocused) {
       console.log('Component is focused');
       // Your logic when the component is focused
+      // reset the answerPath
       dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
     } else {
       console.log('Component is not focused');
       // Your logic when the component is not focused
     }
   }, [isFocused])
-  // useEffect(() => {
-  //   Animated.timing(fadeAnim, {
-  //     toValue: 100,
-  //     duration: 1,
-  //     useNativeDriver: true,
-  //   }).start();
-  //   console.log('fade anim')
-  // }, [fadeAnim]);
+
+  // whenever user press the difficulty button
+  useEffect(()=>{
+    setPaths([])
+    setIsPathCorrect({isCompleted:false, progress:0})
+    setAlertMessage('')
+  },[difficulty])
+
+  useEffect(() => {
+    console.log('apply animation!')
+    if(isPathCorrect.isCompleted){
+      // setShowAnimation(true)
+      animatedFn.start(({finished})=>{
+        console.log('apply animation',finished)
+      })
+      const timeoutId = setTimeout(()=>{
+        setAlertMessage('Try again!')
+        setPaths([])
+        setIsPathCorrect({isCompleted:false, progress:0})
+        animatedFn.reset()
+      },2000)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [isPathCorrect.isCompleted])
 
   if (!fontsLoaded && !fontError) {
     console.log('no loaded')
     return null
   }
-  // if(alertMessage==='Try again!'){
-  //   return <View><Text>{alertMessage}</Text></View>
-  // }else if(alertMessage==='Well done!'){
-  //   return <View><Text>{alertMessage}</Text></View>
-  // }
-
-console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
+// console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
   return (
     <>
-      <LinearGradientBackground>
+      {/* an arrow indicator where to begin drawing (absolute position) */}
+      <StartingPoint positionX={parseInt(SCALED_TREBLE_CLEF_OBJECT[0].x) + 5} positionY={parseInt(SCALED_TREBLE_CLEF_OBJECT[0].y) -5 }/>
 
-        {/* <StartingPoint positionX={SCALED_TREBLE_CLEF_OBJECT[0].x} positionY={SCALED_TREBLE_CLEF_OBJECT[0].y}/> */}
-    
+      <LinearGradientBackground>
+        {isPathCorrect.isCompleted && 
+        <>
+          <Animated.View style={[styles.congratsContainer, {left:-40,transform: [{scale:adjustedScale()/5},{ translateY }]}]}>
+            <CongratsSVG/>
+          </Animated.View>
+          <Animated.View style={[styles.congratsContainer, {right:-40,transform: [{scale:adjustedScale()/5},{ translateY },{ scaleX: -1 }]} ]}>
+            <CongratsSVG/>
+          </Animated.View>
+        </>
+        }   
+     
         {modalVisible && (
           <CustomModal
             modalVisible={modalVisible}
@@ -283,7 +338,9 @@ console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
         )}
 
         <CustomDrawingPage
-          thickness={adjustedAllowance()}
+          thickness={Thickness()}
+          // thickness={1}
+          paths={paths} setPaths={setPaths}
           dispatch={dispatch}
           calculateAccuracy={calculateAccuracy}
           SCALED_TREBLE_CLEF_OBJECT={SCALED_TREBLE_CLEF_OBJECT}
@@ -291,7 +348,7 @@ console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
           setAlertMessage={setAlertMessage}
           setIsPathCorrect={setIsPathCorrect}
           >
-          <View style={styles.textContainer}>
+          <View style={[styles.textContainer, {marginTop: 0}]}>
             <Text style={styles.progessTitle}>{alertMessage === 'Nice!' ? 'Nice!': 'Progress'}</Text>
             <View
               style={{
@@ -338,7 +395,8 @@ console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
               id='treble-clef-on-staff-line'
               scale={adjustedScale()}
               x={adjustedX()}
-              y={adjustedY()}>
+              y={adjustedY()}
+              >
               <TrebleClefWithStaffLines
                 opacityTrebleClef={0.1}
                 opacityStaffLines={1}
@@ -347,7 +405,7 @@ console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
           </Defs>
           <Use href='#treble-clef-on-staff-line' />
           {/* path for checking answer */}
-          <Path
+          {/* <Path
         d={'M' + SCALED_TREBLE_CLEF_STRING_ARRAY.join(' ')}
         fill='none'
         stroke='#fd6f6f'
@@ -355,8 +413,13 @@ console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
         strokeLinecap='round'
         strokeLinejoin='round'
         opacity={0.5}
-      />
+      /> */}
+   
         </CustomDrawingPage>
+        <View style={[styles.buttonContainer, {bottom:20}]}>
+          <CustomButton onPress={onPressButton} buttonPressed={buttonPressed} text={'Easy'} fontSize={30} difficulty={difficulty}/>
+          <CustomButton onPress={onPressButton} buttonPressed={buttonPressed} text={'Hard'} fontSize={30} difficulty={difficulty}/>
+        </View>
       </LinearGradientBackground>
     </>
   )
@@ -373,6 +436,7 @@ const styles = StyleSheet.create({
   textContainer: {
     width: '80%',
     alignSelf: 'center',
+    // marginTop:'10%'
   },
   progessTitle: {
     marginTop: 20,
@@ -420,5 +484,18 @@ const styles = StyleSheet.create({
     height: 60,
     position: 'absolute',
   },
+  buttonContainer:{
+    flexDirection:'row',
+    position:'absolute'
+  },
+  congratsContainer:{
+    position:'absolute', zIndex:1,
+    // flexDirection:'row',
+    // flex:1
+  },
+  congratsWrapper:{
+
+  }
+
 
 })
