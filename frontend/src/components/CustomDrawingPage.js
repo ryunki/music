@@ -12,7 +12,7 @@ import { COLOR, SPACING } from '../../theme/theme'
 import { answerPath } from '../../store/features/drawing/drawingSlice'
 
 
-const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT, modalVisible, setAlertMessage, setIsPathCorrect}) => {
+const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT, modalVisible, isPathCorrect, setIsPathCorrect}) => {
   // const [paths, setPaths] = useState([])
   const [currentPath, setCurrentPath] = useState('')
   // without this header height. the drawing will begin from below where user touched
@@ -32,7 +32,6 @@ const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, ca
       // this resets the answerPath when first touched
       dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
     }
-    // setAlertMessage('Try again!')
     setPaths([])
     // make sure the user's first touch is from the start. 
     // fail otherwise.
@@ -100,10 +99,11 @@ const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, ca
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: handleFirstTouch,
-    onPanResponderMove: drawToggler ? handleDraw : handleErase,
+    // user shouldnt be able to draw,
+    // if modal is visible, and if user has completed the drawing
+    onPanResponderMove: (!modalVisible && !isPathCorrect.isCompleted) && drawToggler ? handleDraw : handleErase,
     onPanResponderRelease: handlePanResponderRelease,
-  });
-
+  })
   useEffect(() => {
     setCurrentPath('')
     setPaths([])
