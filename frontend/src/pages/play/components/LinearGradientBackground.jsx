@@ -10,9 +10,9 @@ const LinearGradientBackground = ({children}) => {
       locations={[0.1, 0.9]}
       style={styles.linearGradientBackground}
     >
-
       {children}
     </LinearGradient>
+
   )
 }
 
@@ -21,5 +21,9 @@ export default LinearGradientBackground
 const styles = StyleSheet.create({
   linearGradientBackground:{
     flex:1,
+    justifyContent:'center',
+    alignItems:'center',
+    width:'100%'
+    // backgroundColor:'gray'
   }
 })

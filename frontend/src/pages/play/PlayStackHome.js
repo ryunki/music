@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import TrebleClefWithStaffLines from './components/TrebleClefWithStaffLines'
 import { screenSize } from '../../../utils/screenFunctions'
 import LinearGradientBackground from './components/LinearGradientBackground'
+import LinearGradientUI from '../../components/UI/LinearGradientUI'
 // import { ScrollView } from 'react-native-gesture-handler'
 
 // phone
@@ -68,9 +69,10 @@ function adjustedY () {
     return screenHeight / 2 - 300
   }
 }
+
   return (
     <LinearGradientBackground>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView contentContainerStyle={[styles.scrollContainer,{width:parseInt(screenWidth)}]}>
           {stages.map((item,idx)=>(
             <LinearGradient  key={idx}
               colors={['#260C72','#4121A0','#7048E1','#B094FF']}
@@ -81,7 +83,7 @@ function adjustedY () {
             >
               <Pressable style={[styles.pressableStages ]} onPress={()=>navigateTo(item)}>
                 <Svg 
-                  height="100%" width="100%" 
+                  height="100%" width="100%"
                   viewBox="0 0 100 100"
                   > 
                     {item === 1 && <TrebleClefWithStaffLines stroke={'black'} strokeWidth={2} fillStaffLines='#DB8686' fillTrebleClef='#F2E91C'/>}
@@ -96,15 +98,14 @@ function adjustedY () {
   )
 }
 
-export default PlayStackHome
-
 const styles = StyleSheet.create({
   linearGradientBackground:{
     flex:1,
   },
   scrollContainer: {
-    flexGrow: 1,
+    // flexGrow: 1,
     alignItems: 'center',
+    // width:360,
     // justifyContent: 'center',
   },
   linearGradientStageButtons:{
@@ -113,11 +114,11 @@ const styles = StyleSheet.create({
     elevation: 10,
     shadowColor:'black',
     marginTop:'10%',
-    // marginHorizontal:'10%',
-    // backgroundColor:'yellow'
     flex:1,
     height:300,
-    width:300
+    width:300,
+    padding:SPACING.space_20,
+    // marginHorizontal:20,
   },
   pressableStages:{
     borderRadius:SPACING.space_20,
@@ -145,3 +146,5 @@ const styles = StyleSheet.create({
   //   }
   // }), 
 })
+
+export default PlayStackHome

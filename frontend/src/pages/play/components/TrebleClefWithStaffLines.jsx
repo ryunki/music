@@ -4,9 +4,9 @@ import { ScrollView, Platform, ImageBackground, Dimensions , StyleSheet, View, P
 
 import Svg,{ Path, G, Defs } from 'react-native-svg'
 import { LinearGradient,Stop } from 'expo-linear-gradient'
-const TrebleClefWithStaffLines = ({stroke,strokeWidth, fillStaffLines, fillTrebleClef, opacityTrebleClef=, opacityStaffLines}) => {
+const TrebleClefWithStaffLines = ({stroke,strokeWidth, fillStaffLines, fillTrebleClef, opacityTrebleClef, opacityStaffLines}) => {
 
-  {console.log('fillTrebleClef',fillTrebleClef)}
+  // {console.log('fillTrebleClef',fillTrebleClef)}
   return (
     <>
 
