@@ -5,6 +5,7 @@ import Svg, {Path,G,Defs,Use,Stop,Mask,Rect,TSpan,
   Text as TextSVG,
   LinearGradient as LinearGradientSVG,
 } from 'react-native-svg'
+import { Audio } from 'expo-av'
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 
@@ -34,6 +35,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import LinearGradientBackground from './components/LinearGradientBackground'
 import StrokedText from '../../components/StrokedText'
 
+
 // import AppLoading from 'expo-app-loading';
 import {
   useFonts,
@@ -57,6 +59,7 @@ const MEDIUM_MOBILE = 4.8
 const LARGE_MOBILE = 5.2
 
 const PlayPage_1 = () => {
+  const [sound, setSound] = useState()
   const [paths, setPaths] = useState([])
   const [isPathCorrect, setIsPathCorrect] = useState({
     isCompleted: false,
@@ -109,6 +112,30 @@ const PlayPage_1 = () => {
 
   // console.log('SCALED_TREBLE_CLEF_STRING_ARRAY: ',SCALED_TREBLE_CLEF_STRING_ARRAY)
 
+  async function buttonSound() {
+    console.log('button sound')
+    const { sound } = await Audio.Sound.createAsync( require('../../../assets/sound/buttonPress.wav')
+    )
+    setSound(sound)
+    await sound.playAsync()
+  }
+  async function congratsSound() {
+    console.log('congrats sound')
+    const randomNumberBetween1And2 = Math.floor(Math.random() * 2) + 1
+    const soundFile = randomNumberBetween1And2 === 1 ? await Audio.Sound.createAsync( require('../../../assets/sound/succeed_1.wav')) 
+        : await Audio.Sound.createAsync( require('../../../assets/sound/succeed_2.wav'))
+    const { sound } = soundFile
+    setSound(sound)
+    await sound.playAsync()
+  }
+
+  async function failSound() {
+    console.log('fail sound')
+    const soundFile = await Audio.Sound.createAsync( require('../../../assets/sound/fail.wav')) 
+    const { sound } = soundFile
+    setSound(sound)
+    await sound.playAsync()
+  }
   // takes current path as parameter
   const calculateAccuracy = (currPath, firstTouch = false) => {
     let firstAnswerCoord = []
@@ -156,6 +183,7 @@ const PlayPage_1 = () => {
         setModalVisible(true)
         // reset the answer path after user failed 
         dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
+        failSound()
       }
     } else {
       setIsPathCorrect({ isCompleted: true, progress: 100 })
@@ -213,17 +241,7 @@ const PlayPage_1 = () => {
       return tablet
     }
   }
-  // function adjustedAllowance() {
-  //   if (screenWidth < 375) {
-  //     return difficulty ==='Easy' ? 15 : 14
-  //   } else if (screenWidth >= 375 && screenWidth < 414) {
-  //     return difficulty ==='Easy' ? 15 : 14
-  //   } else if (screenWidth >= 414 && screenWidth < 600) {
-  //     return difficulty ==='Easy' ? 20 : 19
-  //   } else if (screenWidth >= 600) {
-  //     return difficulty ==='Easy' ? 20 : 19
-  //   }
-  // }
+
   // change the size of SVG graphic according to width
   function adjustedScale() {
     if (screenWidth < 375) {
@@ -269,9 +287,10 @@ const PlayPage_1 = () => {
   const onPressButton = (text) => {
     console.log('button pressed!', text)
     setDifficulty(text)
+    buttonSound()
   }
 
-  useEffect(() => {
+  useEffect(function resetAnswerPath(){
     if (isFocused) {
       console.log('Component is focused');
       // Your logic when the component is focused
@@ -284,26 +303,36 @@ const PlayPage_1 = () => {
   }, [isFocused])
 
   // whenever user press the difficulty button
-  useEffect(()=>{
+  useEffect(function resetPath(){
     setPaths([])
     setIsPathCorrect({isCompleted:false, progress:0})
-    setAlertMessage('')
+    setAlertMessage('Try again!')
   },[difficulty])
 
-  useEffect(() => {
-    console.log('apply animation!')
+  // without this clean up, the sound will not work after several times
+  useEffect(function unloadSound(){
+    return sound
+    ? () => {
+        console.log('Unloading Sound')
+        sound.unloadAsync()
+      }
+    : undefined
+  },[sound])
+
+  useEffect(function startCongratsAnimation() {
+    console.log('isPathCorrect.isCompleted: ',isPathCorrect.isCompleted)
     if(isPathCorrect.isCompleted){
-      // setShowAnimation(true)
-      animatedFn.start(({finished})=>{
-        console.log('apply animation',finished)
-      })
+      congratsSound()
+      animatedFn.start()
       const timeoutId = setTimeout(()=>{
         setAlertMessage('Try again!')
         setPaths([])
         setIsPathCorrect({isCompleted:false, progress:0})
         animatedFn.reset()
       },2000)
-      return () => clearTimeout(timeoutId)
+      return () => {
+        clearTimeout(timeoutId)
+      }
     }
   }, [isPathCorrect.isCompleted])
 
@@ -346,30 +375,18 @@ const PlayPage_1 = () => {
           SCALED_TREBLE_CLEF_OBJECT={SCALED_TREBLE_CLEF_OBJECT}
           modalVisible={modalVisible}
           setAlertMessage={setAlertMessage}
+          isPathCorrect={isPathCorrect}
           setIsPathCorrect={setIsPathCorrect}
           >
           <View style={[styles.textContainer, {marginTop: 0}]}>
             <Text style={styles.progessTitle}>{alertMessage === 'Nice!' ? 'Nice!': 'Progress'}</Text>
-            <View
-              style={{
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
+            <View style={{width: '100%',alignItems: 'center',justifyContent: 'center',}}>
               <LinearGradient
                 colors={['#391D8A', '#7B4CFF']}
                 start={{ x: 0.5, y: 1 }}
                 end={{ x: 0.5, y: 0 }}
                 locations={[0, 1]}
                 style={styles.linearGradientProgressionBar}>
-                {/* <Animated.View // Special animatable View
-              style={{
-                  width: `${isPathCorrect.progress}%`,
-                  height: 50,
-                  backgroundColor: 'powderblue',
-                  opacity: fadeAnim, // Bind opacity to animated value
-              }}>
-            </Animated.View> */}
                 <LinearGradient
                   colors={['#CE8313', '#FFC165']}
                   start={{ x: 0.5, y: 1 }}
