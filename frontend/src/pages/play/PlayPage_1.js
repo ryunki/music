@@ -50,6 +50,7 @@ import LinearGradientUI from '../../components/UI/LinearGradientUI'
 import StartingPoint from '../../components/UI/StartingPoint'
 import CustomButton from '../../components/UI/CustomButton';
 import CongratsSVG from '../../components/SVG/CongratsSVG';
+import useSound from '../../hooks/useSound'
 
 // phone scale
 const SMALLEST_MOBILE = 3
@@ -59,7 +60,8 @@ const MEDIUM_MOBILE = 4.8
 const LARGE_MOBILE = 5.2
 
 const PlayPage_1 = () => {
-  const [sound, setSound] = useState()
+  const {buttonSound, failSound, congratsSound} = useSound()
+
   const [paths, setPaths] = useState([])
   const [isPathCorrect, setIsPathCorrect] = useState({
     isCompleted: false,
@@ -110,32 +112,7 @@ const PlayPage_1 = () => {
   const SCALED_TREBLE_CLEF_OBJECT = scaleObjectArrayPath(ANSWER_TREBLE_CLEF)
   const SCALED_TREBLE_CLEF_STRING_ARRAY = convertObjectToArray(SCALED_TREBLE_CLEF_OBJECT)
 
-  // console.log('SCALED_TREBLE_CLEF_STRING_ARRAY: ',SCALED_TREBLE_CLEF_STRING_ARRAY)
 
-  async function buttonSound() {
-    console.log('button sound')
-    const { sound } = await Audio.Sound.createAsync( require('../../../assets/sound/buttonPress.wav')
-    )
-    setSound(sound)
-    await sound.playAsync()
-  }
-  async function congratsSound() {
-    console.log('congrats sound')
-    const randomNumberBetween1And2 = Math.floor(Math.random() * 2) + 1
-    const soundFile = randomNumberBetween1And2 === 1 ? await Audio.Sound.createAsync( require('../../../assets/sound/succeed_1.wav')) 
-        : await Audio.Sound.createAsync( require('../../../assets/sound/succeed_2.wav'))
-    const { sound } = soundFile
-    setSound(sound)
-    await sound.playAsync()
-  }
-
-  async function failSound() {
-    console.log('fail sound')
-    const soundFile = await Audio.Sound.createAsync( require('../../../assets/sound/fail.wav')) 
-    const { sound } = soundFile
-    setSound(sound)
-    await sound.playAsync()
-  }
   // takes current path as parameter
   const calculateAccuracy = (currPath, firstTouch = false) => {
     let firstAnswerCoord = []
@@ -308,16 +285,6 @@ const PlayPage_1 = () => {
     setIsPathCorrect({isCompleted:false, progress:0})
     setAlertMessage('Try again!')
   },[difficulty])
-
-  // without this clean up, the sound will not work after several times
-  useEffect(function unloadSound(){
-    return sound
-    ? () => {
-        console.log('Unloading Sound')
-        sound.unloadAsync()
-      }
-    : undefined
-  },[sound])
 
   useEffect(function startCongratsAnimation() {
     console.log('isPathCorrect.isCompleted: ',isPathCorrect.isCompleted)
