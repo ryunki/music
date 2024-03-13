@@ -12,7 +12,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import CustomPath from '../../components/CustomPath'
 import { COLOR, SPACING } from '../../../theme/theme'
 import CustomDrawingPage from '../../components/CustomDrawingPage'
-import CustomDrawingPage2 from '../../components/CustomDrawingPage2'
+import CustomDrawingPage2 from '../../components/CustomDrawingPage'
 import TrebleClefOnStaffLines from '../../components/UI/TrebleClefOnStaffLines'
 
 import drawing_3 from '../../../assets/drawing/drawing_3.jpg'
@@ -165,7 +165,23 @@ const PlayPage_1 = () => {
     // update answerPath 
     setAnswerPath(trimmedAnswerPath)
   }
-  
+  function calculateAccuracy (convertedCurrentPath) {
+    let distanceOfAnswer,accumulatedDistanceOfUser
+    // find point of index of answer path upto user has reached
+    const progressedLength = SCALED_TREBLE_CLEF_OBJECT.length - answerPath.length
+    if (progressedLength > 1) {
+      // calculate total distance upto given index
+      distanceOfAnswer = calculateDistanceOfCoords(SCALED_TREBLE_CLEF_OBJECT.slice(0,progressedLength))
+    }
+    // if a user has more than one coords of path drawn
+    const currentProgressedLength = convertedCurrentPath.length
+    if (currentProgressedLength > 1){
+      accumulatedDistanceOfUser = calculateDistanceOfCoords(convertedCurrentPath)
+    }
+    // calcalate the difference of the total distance drawn by user and the answer path upto succeeded point
+    const accuracy = accumulatedDistanceOfUser - distanceOfAnswer
+    return accuracy
+  }
   function handleFirstTouch (x,y) {
     // console.log('first touch',x,y)
     // prevent from getting the results by touching the screen while celebrating animation is running
@@ -182,7 +198,17 @@ const PlayPage_1 = () => {
       const userOnTrack = isUserOnTrack(answerCoord, convertedCurrentPath)
       if (userOnTrack) {
         calculateProgress(answerCoord)
+      } 
+      else if (userOnTrack === undefined){
+        const accuracy = calculateAccuracy(convertedCurrentPath)
+        // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
+        if (accuracy > ACCURACY_LIMIT){
+          userFailed()
+        }
       }
+      else if (!userOnTrack){
+        userFailed()
+      } 
     }
   }
 
@@ -195,33 +221,17 @@ const PlayPage_1 = () => {
     const convertedCurrentPath = convertArrayToObject(currPath)
     // get the latest coord of user path
     const recentUserCoord = convertedCurrentPath[convertedCurrentPath.length - 1]
-    console.log('recentUserCoord: ',recentUserCoord)
     // if the progress is not finished
     if (firstAnswerCoord) {
       // calculateDistance() takes {x:0, y:0} as parameter
       // const distance = calculateDistance(firstAnswerCoord, recentUserCoord)
       const userOnTrack = isUserOnTrack(answerPath, recentUserCoord)
-      console.log('userOnTrack: ',userOnTrack)
       if (userOnTrack) {
-        console.log('is on the right track')
         calculateProgress(answerPath)
       } 
       else if (userOnTrack === undefined){
-        let distanceOfAnswer,accumulatedDistanceOfUser
-        // find point of index of answer path upto user has reached
-        const progressedLength = SCALED_TREBLE_CLEF_OBJECT.length - answerPath.length
-        if (progressedLength > 1) {
-          // calculate total distance upto given index
-          distanceOfAnswer = calculateDistanceOfCoords(SCALED_TREBLE_CLEF_OBJECT.slice(0,progressedLength))
-        }
-        // if a user has more than one coords of path drawn
-        const currentProgressedLength = convertedCurrentPath.length
-        if (currentProgressedLength > 1){
-          accumulatedDistanceOfUser = calculateDistanceOfCoords(convertedCurrentPath)
-        }
-        // calcalate the difference of the total distance drawn by user and the answer path upto succeeded point
-        const accuracy = accumulatedDistanceOfUser - distanceOfAnswer
-        // this prevents a user to draw more than 50 pixels while staying within each check point
+        const accuracy = calculateAccuracy(convertedCurrentPath)
+        // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
         if (accuracy > ACCURACY_LIMIT){
           userFailed()
         }
@@ -237,7 +247,6 @@ const PlayPage_1 = () => {
   }
 
   function handleReleaseTouch () {
-    console.log('release touch')
     if(!isPathCorrect.isCompleted){
       setAlertMessage('Try again!')
       setModalVisible(true)
@@ -248,9 +257,6 @@ const PlayPage_1 = () => {
     if (isFocused) {
       console.log('Component is focused');
       // Your logic when the component is focused
-      // reset the answerPath
-      // dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
-      // setAnswerPath(SCALED_TREBLE_CLEF_OBJECT)
     } else {
       console.log('Component is not focused');
       // Your logic when the component is not focused
@@ -320,7 +326,7 @@ const PlayPage_1 = () => {
           />
         )}
 
-        <CustomDrawingPage2
+        <CustomDrawingPage
           thickness={setThickness(screenWidth)}
           currentPath={currentPath}
           handleFirstTouch={handleFirstTouch}
@@ -383,7 +389,7 @@ const PlayPage_1 = () => {
         opacity={0.5}
       /> */}
    
-        </CustomDrawingPage2>
+        </CustomDrawingPage>
         <View style={[styles.buttonContainer, {bottom:20}]}>
           <CustomButton onPress={onPressButton} text={'Easy'} fontSize={30} difficulty={difficulty}/>
           <CustomButton onPress={onPressButton} text={'Hard'} fontSize={30} difficulty={difficulty}/>
