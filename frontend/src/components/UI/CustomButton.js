@@ -3,7 +3,7 @@ import React, {useState} from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { SPACING } from '../../../theme/theme'
 
-const CustomButton = ({text, fontSize, buttonPressed, onPress, difficulty}) => {
+const CustomButton = ({text, fontSize, onPress, difficulty}) => {
 
   return (
     <View style={[styles.modalContainer, {opacity: difficulty === text ? 1 : 0.5}]}>

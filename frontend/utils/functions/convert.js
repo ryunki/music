@@ -3,8 +3,8 @@ export function convertArrayToObject (splitedPath) {
   let convertedPath = []
   let j = 1
   for (let i = 0; i < splitedPath.length; i += 2){
-    let x = splitedPath[i] 
-    let y = splitedPath[j]
+    let x = parseFloat(splitedPath[i]).toFixed(1)
+    let y = parseFloat(splitedPath[j]).toFixed(1)
     convertedPath = [...convertedPath, {x, y}]
     j+=2
   }

@@ -7,7 +7,7 @@ const CustomPath = ({paths, currentPath, color, thickness}) => {
   return (
     <>
     {/* <Svg style={styles.drawing} height="100%" width="100%"> */}
-      {paths.map((path, index) => (
+      {paths?.map((path, index) => (
         <Path key={index} d={path ? `M${path}` : ''} 
         fill="none" 
         stroke={color}
