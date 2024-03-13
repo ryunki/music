@@ -12,7 +12,7 @@ import { COLOR, SPACING } from '../../theme/theme'
 import { answerPath } from '../../store/features/drawing/drawingSlice'
 
 
-const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT, modalVisible, isPathCorrect, setIsPathCorrect}) => {
+const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, calculateAccuracy, SCALED_TREBLE_CLEF_OBJECT, modalVisible, isPathCorrect, setIsPathCorrect, setAnswerPath}) => {
   // const [paths, setPaths] = useState([])
   const [currentPath, setCurrentPath] = useState('')
   // without this header height. the drawing will begin from below where user touched
@@ -28,9 +28,10 @@ const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, ca
       // setCurrentPath(`${x0} ${y0-headerHeight} ${x0} ${y0-headerHeight}`)
       setCurrentPath(`${x0} ${y0} ${x0} ${y0}`)
       // reset the answer path
-      console.log('draw toggler first touch')
+      console.log('draw toggler first touch', `${x0} ${y0} ${x0} ${y0}`)
       // this resets the answerPath when first touched
-      dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
+      // dispatch(answerPath(SCALED_TREBLE_CLEF_OBJECT))
+      setAnswerPath(SCALED_TREBLE_CLEF_OBJECT)
     }
     setPaths([])
     // make sure the user's first touch is from the start. 
@@ -48,7 +49,6 @@ const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, ca
     // setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY-headerHeight}`))
     const newPathSegment = ` ${moveX} ${moveY}`
     setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${moveX} ${moveY}`))
-    
     // calculates how much a user completed the drawing 
     const currPath = currentPath.split(' ')
     calculateAccuracy(currPath)
@@ -113,9 +113,6 @@ const CustomDrawingPage = ({children, thickness=5, paths, setPaths, dispatch, ca
     }
   }, [modalVisible])
 
-  const onPressRetry = () => {
-    console.log('retry ')
-  }
   return (
     // <View style={styles.container}>
     <>

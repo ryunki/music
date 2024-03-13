@@ -1,3 +1,6 @@
+export const SMALL_MOBILE_WIDTH = 375
+export const MOBILE_WIDTH = 414
+export const TABLET_WIDTH = 600
 
 export const DASH = '5 5'
 
