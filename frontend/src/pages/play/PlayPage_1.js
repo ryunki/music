@@ -57,6 +57,7 @@ import CongratsSVG from '../../components/SVG/CongratsSVG';
 import useSound from '../../hooks/useSound'
 import useDraw from '../../hooks/useDraw'
 import { adjustedAllowance, setThickness, adjustedScale,adjustedX,adjustedY } from '../../../utils/functions/playPage_1'
+import { current } from '@reduxjs/toolkit'
 
 // let user allow to continue drawing within 3 times the certain distance
 const GRAY_AREA = 3
@@ -66,6 +67,7 @@ const ACCURACY_LIMIT = 50
 const PlayPage_1 = () => {
   const {buttonSound, failSound, congratsSound} = useSound()
   const [currentPath, setCurrentPath] = useState('')
+  // const [answerPath, setAnswerPath] = useState([])
   const [answerPath, setAnswerPath] = useState([])
   const [isPathCorrect, setIsPathCorrect] = useState({
     isCompleted: false,
@@ -182,11 +184,31 @@ const PlayPage_1 = () => {
     const accuracy = accumulatedDistanceOfUser - distanceOfAnswer
     return accuracy
   }
+
+  function userOnTrackHandler (userOnTrack, path, convertedCurrentPath) {
+    if (userOnTrack) {
+      calculateProgress(path)
+    } 
+    else if (userOnTrack === undefined){
+      const accuracy = calculateAccuracy(convertedCurrentPath)
+      // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
+      if (accuracy > ACCURACY_LIMIT){
+        userFailed()
+      }
+    }
+    else if (!userOnTrack){
+      userFailed()
+    } 
+  }
+
   function handleFirstTouch (x,y) {
     // console.log('first touch',x,y)
     // prevent from getting the results by touching the screen while celebrating animation is running
     if(!isPathCorrect.isCompleted){
+      // setCurrentPath(`${x} ${y}`)
       setCurrentPath(`${x} ${y} ${x} ${y}`)
+      // this setter is important for resetting the answerPath, this prevents user to get instant 100% progress for the next try
+      setAnswerPath(SCALED_TREBLE_CLEF_OBJECT)
       // set an answerPath whenever user touches the screen for first time
       // so that the progress indicator starts from 0% 
       const answerCoord = SCALED_TREBLE_CLEF_OBJECT
@@ -194,27 +216,15 @@ const PlayPage_1 = () => {
       // const currPath = [x,y] 
       const currPath = `${x} ${y}`
       const convertedCurrentPath = convertArrayToObject(currPath.split(' '))[0]
-      
       const userOnTrack = isUserOnTrack(answerCoord, convertedCurrentPath)
-      if (userOnTrack) {
-        calculateProgress(answerCoord)
-      } 
-      else if (userOnTrack === undefined){
-        const accuracy = calculateAccuracy(convertedCurrentPath)
-        // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
-        if (accuracy > ACCURACY_LIMIT){
-          userFailed()
-        }
-      }
-      else if (!userOnTrack){
-        userFailed()
-      } 
+      // userOnTrackHandler(userOnTrack, answerCoord, convertedCurrentPath)
     }
   }
 
   function handleDraw (x,y) {
     const newPathSegment = ` ${x} ${y}`
-    setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${x} ${y}`))
+    // setCurrentPath((prevPath) => (prevPath ? prevPath + newPathSegment : `${x} ${y}`))
+    setCurrentPath((prevPath) => prevPath ? prevPath + newPathSegment : `${x} ${y}`)
     const currPath = currentPath.split(' ')
     const firstAnswerCoord = answerPath[0]
     // from ["123","234","345"...]  to [{x:"123",y:"234"}...]
@@ -224,21 +234,8 @@ const PlayPage_1 = () => {
     // if the progress is not finished
     if (firstAnswerCoord) {
       // calculateDistance() takes {x:0, y:0} as parameter
-      // const distance = calculateDistance(firstAnswerCoord, recentUserCoord)
       const userOnTrack = isUserOnTrack(answerPath, recentUserCoord)
-      if (userOnTrack) {
-        calculateProgress(answerPath)
-      } 
-      else if (userOnTrack === undefined){
-        const accuracy = calculateAccuracy(convertedCurrentPath)
-        // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
-        if (accuracy > ACCURACY_LIMIT){
-          userFailed()
-        }
-      }
-      else if (!userOnTrack){
-        userFailed()
-      } 
+      // userOnTrackHandler(userOnTrack, answerPath, convertedCurrentPath)
     } else {
       setIsPathCorrect({ isCompleted: true, progress: 100 })
       setAlertMessage('Nice!')
@@ -328,6 +325,7 @@ const PlayPage_1 = () => {
 
         <CustomDrawingPage
           thickness={setThickness(screenWidth)}
+          // thickness={3}
           currentPath={currentPath}
           handleFirstTouch={handleFirstTouch}
           handleDraw={handleDraw}

@@ -16,7 +16,7 @@ const StartingPoint = ({positionX, positionY}) => {
 
     setTimeout(()=>{
       setIsVisible(false)
-    },800)
+    },1000)
   }, [])
 
   return (<>
