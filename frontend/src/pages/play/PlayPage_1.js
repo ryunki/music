@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 
-import {ImageBackground,Dimensions, StyleSheet,View, PanResponder,Pressable,Text,Animated,Platform,} from 'react-native'
+import {Easing,ImageBackground,Dimensions, StyleSheet,View, PanResponder,Pressable,Text,Animated,Platform,} from 'react-native'
 import Svg, {Path,G,Defs,Use,Stop,Mask,Rect,TSpan,
   Text as TextSVG,
   LinearGradient as LinearGradientSVG,
@@ -65,6 +65,7 @@ const GRAY_AREA = 3
 const ACCURACY_LIMIT = 50
 
 const PlayPage_1 = () => {
+  const [progressBarWidth, setProgressBarWidth] = useState(0)
   const {buttonSound, failSound, congratsSound} = useSound()
   const [currentPath, setCurrentPath] = useState('')
   // const [answerPath, setAnswerPath] = useState([])
@@ -78,13 +79,47 @@ const PlayPage_1 = () => {
   // for buttons
   const [difficulty, setDifficulty] = useState('Easy')
   // for congrats animation
-  const translateY = useRef(new Animated.Value(-100)).current
-  const animatedFn = Animated.spring(translateY, {
+  const congratsTranslateY = useRef(new Animated.Value(-100)).current
+  const congratsAnimation = Animated.spring(congratsTranslateY, {
     toValue: 0,
     bounciness:30,
     useNativeDriver: true, // set to true if possible
   })
 
+  const animatedWidth = useRef(new Animated.Value(0)).current
+  const inputRange = [0, 100]
+  const outputRange = [-progressBarWidth, 0]
+  const widthExpandAnimation = animatedWidth.interpolate({
+    inputRange,
+    outputRange,
+  })
+  
+  const startWidthAnimation = (progress) => {
+    console.log('progress: ',progress)
+    return Animated.timing(animatedWidth, {
+      toValue: progress,
+      duration: 1000,
+      // bounciness:10,
+      easing: Easing.out(Easing.exp),
+      useNativeDriver: true,
+    }).start()
+  }
+  const resetWidthAnimation = () => {
+    return Animated.timing(animatedWidth, {
+      toValue: 0,
+      duration: 1000,
+      // bounciness:10,
+      easing: Easing.out(Easing.exp),
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const handleLayout = (event) => {
+    const { width } = event.nativeEvent.layout;
+    console.log('handleLayout: ',width)
+    setProgressBarWidth(width)
+  }
+  // console.log('interpolatedWidth: ',interpolatedWidth)
   const { screenHeight, screenWidth } = screenSize()
   
   // to detect if current page is focused or not
@@ -166,7 +201,10 @@ const PlayPage_1 = () => {
     setIsPathCorrect({ isCompleted: false, progress: progressPercentage })
     // update answerPath 
     setAnswerPath(trimmedAnswerPath)
+    console.log('start animation')
+    startWidthAnimation(progressPercentage)
   }
+
   function calculateAccuracy (convertedCurrentPath) {
     let distanceOfAnswer,accumulatedDistanceOfUser
     // find point of index of answer path upto user has reached
@@ -217,7 +255,7 @@ const PlayPage_1 = () => {
       const currPath = `${x} ${y}`
       const convertedCurrentPath = convertArrayToObject(currPath.split(' '))[0]
       const userOnTrack = isUserOnTrack(answerCoord, convertedCurrentPath)
-      // userOnTrackHandler(userOnTrack, answerCoord, convertedCurrentPath)
+      userOnTrackHandler(userOnTrack, answerCoord, convertedCurrentPath)
     }
   }
 
@@ -235,7 +273,7 @@ const PlayPage_1 = () => {
     if (firstAnswerCoord) {
       // calculateDistance() takes {x:0, y:0} as parameter
       const userOnTrack = isUserOnTrack(answerPath, recentUserCoord)
-      // userOnTrackHandler(userOnTrack, answerPath, convertedCurrentPath)
+      userOnTrackHandler(userOnTrack, answerPath, convertedCurrentPath)
     } else {
       setIsPathCorrect({ isCompleted: true, progress: 100 })
       setAlertMessage('Nice!')
@@ -262,6 +300,7 @@ const PlayPage_1 = () => {
 
   // whenever user press the difficulty button
   useEffect(function resetPath(){
+    resetWidthAnimation()
     setCurrentPath('')
     setIsPathCorrect({isCompleted:false, progress:0})
     setAlertMessage('Try again!')
@@ -270,14 +309,16 @@ const PlayPage_1 = () => {
   // whenever user has completed the progress
   useEffect(function startCongratsAnimation() {
     console.log('isPathCorrect.isCompleted: ',isPathCorrect.isCompleted)
+    console.log('widthExpandAnimation: ',widthExpandAnimation)
     if(isPathCorrect.isCompleted){
       congratsSound()
-      animatedFn.start()
+      congratsAnimation.start()
       const timeoutId = setTimeout(()=>{
+        resetWidthAnimation()
         setCurrentPath('')
         setIsPathCorrect({isCompleted:false, progress:0})
         setAlertMessage('Try again!')
-        animatedFn.reset()
+        congratsAnimation.reset()
       },2000)
       return () => {
         clearTimeout(timeoutId)
@@ -288,6 +329,7 @@ const PlayPage_1 = () => {
   useEffect(() => {
     // if user closes the modal
     if(!modalVisible){
+      resetWidthAnimation()
       setCurrentPath('')
       setIsPathCorrect({isCompleted: false,progress: 0,})
     }
@@ -306,10 +348,10 @@ const PlayPage_1 = () => {
       <LinearGradientBackground>
         {isPathCorrect.isCompleted && 
         <>
-          <Animated.View style={[styles.congratsContainer, {left:-40,transform: [{scale:adjustedScale(screenWidth)/5},{ translateY }]}]}>
+          <Animated.View style={[styles.congratsContainer, {left:-40,transform: [{scale:adjustedScale(screenWidth)/5},{ translateY:congratsTranslateY }]}]}>
             <CongratsSVG/>
           </Animated.View>
-          <Animated.View style={[styles.congratsContainer, {right:-40,transform: [{scale:adjustedScale(screenWidth)/5},{ translateY },{ scaleX: -1 }]} ]}>
+          <Animated.View style={[styles.congratsContainer, {right:-40,transform: [{scale:adjustedScale(screenWidth)/5},{ translateY:congratsTranslateY },{ scaleX: -1 }]} ]}>
             <CongratsSVG/>
           </Animated.View>
         </>
@@ -337,21 +379,25 @@ const PlayPage_1 = () => {
             <Text style={styles.progessTitle}>{alertMessage === 'Nice!' ? 'Nice!': 'Progress'}</Text>
             <View style={{width: '100%',alignItems: 'center',justifyContent: 'center',}}>
               <LinearGradient
+                // onLayout={handleLayout2}
                 colors={['#391D8A', '#7B4CFF']}
                 start={{ x: 0.5, y: 1 }}
                 end={{ x: 0.5, y: 0 }}
                 locations={[0, 1]}
                 style={styles.linearGradientProgressionBar}>
-                <LinearGradient
-                  colors={['#CE8313', '#FFC165']}
-                  start={{ x: 0.5, y: 1 }}
-                  end={{ x: 0.5, y: 0 }}
-                  locations={[0, 1]}
-                  style={[
-                    styles.percentageBar,
-                    { width: `${isPathCorrect.progress}%` },
-                  ]}
-                />
+                  <Animated.View 
+                    onLayout={handleLayout}
+                    style={[{transform: [{translateX: widthExpandAnimation}],}]}
+                  >
+                  <LinearGradient
+                    colors={['#CE8313', '#FFC165']}
+                    start={{ x: 0.5, y: 1 }}
+                    end={{ x: 0.5, y: 0 }}
+                    locations={[0, 1]}
+                    style={[styles.percentageBar,{ width: `100%` }]}
+                    // style={[styles.percentageBar,{ width: `${isPathCorrect.progress}%` }]}
+                  />
+                  </Animated.View>
               </LinearGradient>
 
               {/* this displays the progression bar */}
