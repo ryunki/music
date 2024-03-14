@@ -15,7 +15,35 @@ export const COLOR = {
   grey100 : 'rgb(128, 128, 128)',
   grey200 : '#acacac',
   red100 : 'rgb(255, 26, 26)',
+  yellow100:'#FFF59D',
+  yellow200:'#FFEB3B',
+  yellow300 :'#FFF500',
+  pink100: '#DB8686',
+}
+export const BORDER_PURPLE = {
+  c100:'#5E0C9E'
+}
+export const BUTTON_COLOR ={
+  c100: '#2A0B81', 
+  c200: '#6D46DA', 
+  c300: '#7F27FF', 
+  c400: '#7E53F7', 
+  c500: '#A484FF',
+}
+export const CARD_COLOR ={
+  c100: '#260C72',
+  c200: '#4121A0', 
+  c300: '#7048E1',
+  c400: '#B094FF'
+}
 
+export const TWO_TONE_PURPLE = {
+  c100: '#391D8A', 
+  c200: '#7B4CFF'
+}
+export const TWO_TONE_ORANGE = {
+  c100: '#CE8313', 
+  c200: '#FFC165'
 }
 
 export const SPACING = {

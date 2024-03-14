@@ -57,8 +57,9 @@ const PlayStack = () => {
         headerLeft: () =>
         { 
           return <Pressable onPress={()=>navigation.goBack()}>
+            {/* SVG for Arrow */}
           <Svg width={50} height={50} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <Path d="M6 12H18M6 12L11 7M6 12L11 17" stroke="#FFF500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <Path d="M6 12H18M6 12L11 7M6 12L11 17" stroke={COLOR.yellow100} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </Svg>
         </Pressable>
         }
@@ -89,9 +90,9 @@ const PlayStack = () => {
       <Stack.Screen name="PlayStage_2" component={PlayPage_2} 
         // options={({route})=>({ headerTitle: getHeaderTitle(route)})}
       />
-      <Stack.Screen name="PlayStage_3" component={PlayPage_3} 
-        // options={({route})=>({ headerTitle: getHeaderTitle(route)})}
-      />
+      {/* <Stack.Screen name="PlayStage_3" component={PlayPage_3} 
+        options={({route})=>({ headerTitle: getHeaderTitle(route)})}
+      /> */}
     </Stack.Navigator>
   );
 };

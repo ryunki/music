@@ -1,46 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
+import {Easing, StyleSheet,View,Text,Animated,} from 'react-native'
+import {G,Defs,Use} from 'react-native-svg'
+import { LinearGradient } from 'expo-linear-gradient'
+import { useIsFocused } from '@react-navigation/native';
 
-import {Easing,ImageBackground,Dimensions, StyleSheet,View, PanResponder,Pressable,Text,Animated,Platform,} from 'react-native'
-import Svg, {Path,G,Defs,Use,Stop,Mask,Rect,TSpan,
-  Text as TextSVG,
-  LinearGradient as LinearGradientSVG,
-} from 'react-native-svg'
-import { Audio } from 'expo-av'
-import { useHeaderHeight } from '@react-navigation/elements'
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { COLOR, SPACING, TWO_TONE_ORANGE, TWO_TONE_PURPLE } from '../../../theme/theme'
+import { CORRECT_PATH_TREBLE_CLEF} from '../../../constants/constants'
 
-import CustomPath from '../../components/CustomPath'
-import { COLOR, SPACING } from '../../../theme/theme'
-import CustomDrawingPage from '../../components/CustomDrawingPage'
-import CustomDrawingPage2 from '../../components/CustomDrawingPage'
-import TrebleClefOnStaffLines from '../../components/UI/TrebleClefOnStaffLines'
-
-import drawing_3 from '../../../assets/drawing/drawing_3.jpg'
-import {
-  PATH_FOR_TREBLE_CLEF,
-  CORRECT_PATH_TREBLE_CLEF,
-  SCALE_HEIGHT,
-  SCALE_WIDTH,
-  SMALL_MOBILE_WIDTH,
-  MOBILE_WIDTH,
-  TABLET_WIDTH,
-} from '../../../constants/constants'
 import { screenSize } from '../../../utils/screenFunctions'
 import { calculateDistance, calculateDistanceOfCoords } from '../../../utils/functions/calculateDistance'
+import {convertArrayToObject,convertObjectToArray } from '../../../utils/functions/convert'
 
-import { useDispatch, useSelector } from 'react-redux'
-// import { answerPath } from '../../../store/features/drawing/drawingSlice'
+import CustomDrawingPage from '../../components/CustomDrawingPage'
 import TrebleClefWithStaffLines from './components/TrebleClefWithStaffLines'
-import {
-  convertArrayToObject,
-  convertObjectToArray,
-} from '../../../utils/functions/convert'
-import { LinearGradient } from 'expo-linear-gradient'
 import LinearGradientBackground from './components/LinearGradientBackground'
-import StrokedText from '../../components/StrokedText'
 
-
-// import AppLoading from 'expo-app-loading';
 import {
   useFonts,
   PalanquinDark_400Regular,
@@ -48,16 +22,14 @@ import {
   PalanquinDark_600SemiBold,
   PalanquinDark_700Bold,
 } from '@expo-google-fonts/palanquin-dark'
-// import Modal from '../../components/UI/CustomModal'
+
 import CustomModal from '../../components/UI/CustomModal'
-import LinearGradientUI from '../../components/UI/LinearGradientUI'
 import StartingPoint from '../../components/UI/StartingPoint'
 import CustomButton from '../../components/UI/CustomButton';
 import CongratsSVG from '../../components/SVG/CongratsSVG';
 import useSound from '../../hooks/useSound'
-import useDraw from '../../hooks/useDraw'
+
 import { adjustedAllowance, setThickness, adjustedScale,adjustedX,adjustedY } from '../../../utils/functions/playPage_1'
-import { current } from '@reduxjs/toolkit'
 
 // let user allow to continue drawing within 3 times the certain distance
 const GRAY_AREA = 3
@@ -65,18 +37,20 @@ const GRAY_AREA = 3
 const ACCURACY_LIMIT = 50
 
 const PlayPage_1 = () => {
-  const [progressBarWidth, setProgressBarWidth] = useState(0)
   const {buttonSound, failSound, congratsSound} = useSound()
+  // get width of the progress bar when it's 100%. this state is used for animation
+  const [progressBarWidth, setProgressBarWidth] = useState(0)
   const [currentPath, setCurrentPath] = useState('')
-  // const [answerPath, setAnswerPath] = useState([])
+  // answer path for user to compare every coords and remove one by one until there is nothing left
   const [answerPath, setAnswerPath] = useState([])
+  // this state is responsible for displaying number of the progress bar
   const [isPathCorrect, setIsPathCorrect] = useState({
     isCompleted: false,
     progress: 0,
   })
   const [alertMessage, setAlertMessage] = useState('Try again!')
   const [modalVisible, setModalVisible] = useState(false)
-  // for buttons
+  // for difficulty buttons
   const [difficulty, setDifficulty] = useState('Easy')
   // for congrats animation
   const congratsTranslateY = useRef(new Animated.Value(-100)).current
@@ -95,7 +69,6 @@ const PlayPage_1 = () => {
   })
   
   const startWidthAnimation = (progress) => {
-    console.log('progress: ',progress)
     return Animated.timing(animatedWidth, {
       toValue: progress,
       duration: 1000,
@@ -119,14 +92,11 @@ const PlayPage_1 = () => {
     console.log('handleLayout: ',width)
     setProgressBarWidth(width)
   }
-  // console.log('interpolatedWidth: ',interpolatedWidth)
+
   const { screenHeight, screenWidth } = screenSize()
   
   // to detect if current page is focused or not
   const isFocused = useIsFocused()
-
-  // const answerPathRedux = useSelector((state) => state.answerPath.path)
-  // const dispatch = useDispatch()
 
   let [fontsLoaded, fontError] = useFonts({
     PalanquinDark_400Regular,
@@ -135,12 +105,11 @@ const PlayPage_1 = () => {
     PalanquinDark_700Bold,
   })
 
-  const headerHeight = useHeaderHeight()
-
   // takes ["123","234","345","456"... ] as parameter
   const ANSWER_TREBLE_CLEF = convertArrayToObject(CORRECT_PATH_TREBLE_CLEF.split(' '))
   // from [{x:"123",y:"123"},{...}] to ["123","234","345","456"....]
   const SCALED_TREBLE_CLEF_OBJECT = scaleObjectArrayPath(ANSWER_TREBLE_CLEF)
+  // this is for displaying answer path
   const SCALED_TREBLE_CLEF_STRING_ARRAY = convertObjectToArray(SCALED_TREBLE_CLEF_OBJECT)
 
   const isUserOnTrack = (answerCoord, recentUserCoord) => {
@@ -240,7 +209,7 @@ const PlayPage_1 = () => {
   }
 
   function handleFirstTouch (x,y) {
-    // console.log('first touch',x,y)
+    console.log('first touch',x,y)
     // prevent from getting the results by touching the screen while celebrating animation is running
     if(!isPathCorrect.isCompleted){
       // setCurrentPath(`${x} ${y}`)
@@ -339,7 +308,7 @@ const PlayPage_1 = () => {
     console.log('no loaded')
     return null
   }
-// console.log('SCALED_TREBLE_CLEF_OBJECT: ',SCALED_TREBLE_CLEF_OBJECT[0])
+
   return (
     <>
       {/* an arrow indicator where to begin drawing (absolute position) */}
@@ -367,7 +336,6 @@ const PlayPage_1 = () => {
 
         <CustomDrawingPage
           thickness={setThickness(screenWidth)}
-          // thickness={3}
           currentPath={currentPath}
           handleFirstTouch={handleFirstTouch}
           handleDraw={handleDraw}
@@ -379,8 +347,7 @@ const PlayPage_1 = () => {
             <Text style={styles.progessTitle}>{alertMessage === 'Nice!' ? 'Nice!': 'Progress'}</Text>
             <View style={{width: '100%',alignItems: 'center',justifyContent: 'center',}}>
               <LinearGradient
-                // onLayout={handleLayout2}
-                colors={['#391D8A', '#7B4CFF']}
+                colors={[TWO_TONE_PURPLE.c100, TWO_TONE_PURPLE.c200]}
                 start={{ x: 0.5, y: 1 }}
                 end={{ x: 0.5, y: 0 }}
                 locations={[0, 1]}
@@ -390,12 +357,11 @@ const PlayPage_1 = () => {
                     style={[{transform: [{translateX: widthExpandAnimation}],}]}
                   >
                   <LinearGradient
-                    colors={['#CE8313', '#FFC165']}
+                    colors={[TWO_TONE_ORANGE.c100, TWO_TONE_ORANGE.c200]}
                     start={{ x: 0.5, y: 1 }}
                     end={{ x: 0.5, y: 0 }}
                     locations={[0, 1]}
                     style={[styles.percentageBar,{ width: `100%` }]}
-                    // style={[styles.percentageBar,{ width: `${isPathCorrect.progress}%` }]}
                   />
                   </Animated.View>
               </LinearGradient>
@@ -403,7 +369,6 @@ const PlayPage_1 = () => {
               {/* this displays the progression bar */}
               <Text style={styles.text}>
                 {`${isPathCorrect.progress}%`}
-                {/* {isPathCorrect.isCompleted ? `${isPathCorrect.progress}%`:  `${isPathCorrect.progress}%`} */}
               </Text>
             </View>
           </View>
@@ -432,7 +397,6 @@ const PlayPage_1 = () => {
         strokeLinejoin='round'
         opacity={0.5}
       /> */}
-   
         </CustomDrawingPage>
         <View style={[styles.buttonContainer, {bottom:20}]}>
           <CustomButton onPress={onPressButton} text={'Easy'} fontSize={30} difficulty={difficulty}/>
@@ -446,29 +410,22 @@ const PlayPage_1 = () => {
 export default PlayPage_1
 
 const styles = StyleSheet.create({
-  linearGradientBackground: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   textContainer: {
     width: '80%',
     alignSelf: 'center',
-    // marginTop:'10%'
   },
   progessTitle: {
     marginTop: 20,
     textAlign: 'center',
-    // width:'80%',
     fontSize: 60,
     fontFamily: 'PalanquinDark_400Regular',
-    color: '#FFF500',
+    color: COLOR.yellow300,
     textShadowColor: 'black',
     textShadowRadius: 10,
   },
   text: {
     textAlign: 'center',
-    color: '#FFF500',
+    color: COLOR.yellow300,
     fontSize: 35,
     fontWeight: 'bold',
     position: 'absolute',
@@ -477,7 +434,7 @@ const styles = StyleSheet.create({
   },
   linearGradientProgressionBar: {
     // this background color is for the component that fill in the gap caused by lineargradient effect
-    backgroundColor: '#5931CD',
+    backgroundColor: TWO_TONE_PURPLE.c100,
     borderRadius: SPACING.space_10,
     shadowOpacity: 1,
     elevation: 10,
@@ -485,7 +442,6 @@ const styles = StyleSheet.create({
 
     height: 60,
     width: '100%',
-    // flex:1,
 
     // this fill in the gap border of the component and the background color with borderRadius
     borderColor: 'black',
@@ -498,7 +454,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   percentageBar: {
-    backgroundColor: '#FF6B00',
     height: 60,
     position: 'absolute',
   },
@@ -508,7 +463,5 @@ const styles = StyleSheet.create({
   },
   congratsContainer:{
     position:'absolute', zIndex:1,
-    // flexDirection:'row',
-    // flex:1
   },
 })

@@ -1,16 +1,10 @@
-import {useState, useEffect, useRef}from 'react'
 
-import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable} from 'react-native'
-import { useSelector, useDispatch } from 'react-redux'
+import { StyleSheet, View, PanResponder} from 'react-native'
 
-import Svg, { Path, Line, Circle, Text} from 'react-native-svg'
+import Svg from 'react-native-svg'
 
-import { useHeaderHeight } from '@react-navigation/elements'
 import CustomPath from './CustomPath'
 import { COLOR, SPACING } from '../../theme/theme'
-
-import { answerPath } from '../../store/features/drawing/drawingSlice'
-import useDraw from '../hooks/useDraw'
 
 const CustomDrawingPage = (props) => {
 
@@ -41,14 +35,12 @@ const CustomDrawingPage = (props) => {
     onPanResponderRelease: handlePanResponderRelease,
   })
   return (
-    <>
-      <View {...panResponder.panHandlers} style={styles.container}>
-        <Svg height="100%" width="100%">
-          <CustomPath paths={props.paths} currentPath={props.currentPath} color='black' thickness={props.thickness}/>
-          {props.children}
-        </Svg>
-      </View>
-     </>
+    <View {...panResponder.panHandlers} style={styles.container}>
+      <Svg height="100%" width="100%">
+        <CustomPath paths={props.paths} currentPath={props.currentPath} color='black' thickness={props.thickness}/>
+        {props.children}
+      </Svg>
+    </View>
   )
 }
 
@@ -57,20 +49,6 @@ export default CustomDrawingPage
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
     width:'100%',
   },
-  eraseButton: {
-    position: 'absolute',
-    bottom: SPACING.space_20,
-    // left: Dimensions.get('window').width / 2,
-    left: '50%',
-    // transform: [{ translateX: -45 }], // Adjust the translation based on the button width
-    backgroundColor: COLOR.blue300,
-    padding: SPACING.space_10,
-    borderRadius: SPACING.space_10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // width:100
-   },
 });

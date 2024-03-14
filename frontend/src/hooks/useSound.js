@@ -1,11 +1,10 @@
 import React, { useState, useEffect} from 'react'
 import { Audio } from 'expo-av'
 
-
+// and any sounds you wish to add in this custom hook.
 const useSound = () => {
   const [sound, setSound] = useState()
 
-  
   async function buttonSound() {
     const { sound } = await Audio.Sound.createAsync( require('../../assets/sound/buttonPress.wav')
     )
