@@ -27,18 +27,24 @@ const useSound = () => {
     setSound(sound)
     await sound.playAsync()
   }
+  async function correctNoteSound() {
+    const soundFile = await Audio.Sound.createAsync( require('../../assets/sound/correct_note.wav')) 
+    const { sound } = soundFile
+    setSound(sound)
+    await sound.playAsync()
+  }
 
   // without this clean up, the sound will not work after several times
   useEffect(function unloadSound(){
     return sound
     ? () => {
-        console.log('Unloading Sound')
+        // console.log('Unloading Sound', sound)
         sound.unloadAsync()
       }
     : undefined
   },[sound])
 
-  return {buttonSound, failSound, congratsSound}
+  return {buttonSound, failSound, congratsSound,correctNoteSound}
 }
 
 export default useSound

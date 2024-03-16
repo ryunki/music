@@ -19,6 +19,7 @@ export const COLOR = {
   yellow200:'#FFEB3B',
   yellow300 :'#FFF500',
   pink100: '#DB8686',
+  orange100: '#ff9500',
 }
 export const BORDER_PURPLE = {
   c100:'#5E0C9E'
