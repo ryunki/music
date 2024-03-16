@@ -22,9 +22,9 @@ const PHONE_ALLOWANCE = {easy:13, hard:9}
 const TABLET_ALLOWANCE = {easy:13, hard:9}
 
 // const { screenHeight, screenWidth } = screenSize()
-
+const { screenHeight, screenWidth } = screenSize()
   // change the size of SVG graphic according to width
-export function adjustedAllowance(difficulty, screenWidth) {
+export function adjustedAllowance(difficulty) {
     const difficultySmall = difficulty === 'Easy' ? PHONE_ALLOWANCE.easy : PHONE_ALLOWANCE.hard
     const difficultyBig =  difficulty === 'Easy' ? TABLET_ALLOWANCE.easy : TABLET_ALLOWANCE.hard
     if (screenWidth < SMALL_MOBILE_WIDTH) {
@@ -38,7 +38,7 @@ export function adjustedAllowance(difficulty, screenWidth) {
     }
   }
   // change the size of SVG graphic according to width
-export function setThickness(screenWidth) {
+export function setThickness() {
     if (screenWidth < SMALL_MOBILE_WIDTH) {
       return PHONE_THICKNESS
     } else if (screenWidth >= SMALL_MOBILE_WIDTH && screenWidth < MOBILE_WIDTH) {
@@ -51,7 +51,7 @@ export function setThickness(screenWidth) {
   }
 
   // change the size of SVG graphic according to width
-  export function adjustedScale(screenWidth) {
+  export function adjustedScale() {
     if (screenWidth < SMALL_MOBILE_WIDTH) {
       return SMALLEST_MOBILE
     } else if (screenWidth >= SMALL_MOBILE_WIDTH && screenWidth < MOBILE_WIDTH) {
@@ -62,7 +62,7 @@ export function setThickness(screenWidth) {
       return LARGE_TABLET
     }
   }
-  export function adjustedX(screenWidth) {
+  export function adjustedX() {
     if (screenWidth < SMALL_MOBILE_WIDTH) {
       // the width of the SVG used for this page is 100 pixels
       // when it is scaled to 2.7 SVG's width scales to 270 pixels. half of it would be 135
@@ -76,7 +76,7 @@ export function setThickness(screenWidth) {
       return screenWidth / 2 - (LARGE_TABLET * 100) / 2
     }
   }
-  export function adjustedY(screenHeight,screenWidth) {
+  export function adjustedY() {
     if (screenWidth < SMALL_MOBILE_WIDTH) {
       // the width of the SVG used for this page is 100 pixels
       // when it is scaled to 2.7 SVG's width scales to 270 pixels. half of it would be 135

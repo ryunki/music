@@ -3,6 +3,7 @@ import {Easing, StyleSheet,View,Text,Animated,} from 'react-native'
 import {G,Defs,Use} from 'react-native-svg'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useIsFocused } from '@react-navigation/native';
+import { useHeaderHeight } from '@react-navigation/elements'
 
 import { COLOR, SPACING, TWO_TONE_ORANGE, TWO_TONE_PURPLE } from '../../../theme/theme'
 import { CORRECT_PATH_TREBLE_CLEF} from '../../../constants/constants'
@@ -92,7 +93,7 @@ const PlayPage_1 = () => {
     console.log('handleLayout: ',width)
     setProgressBarWidth(width)
   }
-
+  const headerHeight = useHeaderHeight()
   const { screenHeight, screenWidth } = screenSize()
   
   // to detect if current page is focused or not
@@ -115,7 +116,7 @@ const PlayPage_1 = () => {
   const isUserOnTrack = (answerCoord, recentUserCoord) => {
     // const LEVEL = difficulty === 'Easy' ? EASY : HARD
     const distance = calculateDistance(answerCoord[0], recentUserCoord)
-    const allwowance =  adjustedAllowance(difficulty, screenWidth)
+    const allwowance =  adjustedAllowance(difficulty)
     if (distance <= allwowance) {
       console.log('distance is within the adjustedAllowance')
       return true
@@ -136,10 +137,10 @@ const PlayPage_1 = () => {
     let convertedPath = []
     for (let i = 0; i < pathObjectArray.length; i++) {
       let x = (
-        parseFloat(pathObjectArray[i].x) * adjustedScale(screenWidth) + adjustedX(screenWidth)
+        parseFloat(pathObjectArray[i].x) * adjustedScale() + adjustedX()
       ).toFixed(1)
       let y = (
-        parseFloat(pathObjectArray[i].y) * adjustedScale(screenWidth) + adjustedY(screenHeight, screenWidth)
+        parseFloat(pathObjectArray[i].y) * adjustedScale() + adjustedY()
       ).toFixed(1)
       // let y = (parseInt(pathObjectArray[i].y) * adjustedScale()).toFixed(1)
       convertedPath = [...convertedPath, { x, y }]
@@ -174,6 +175,7 @@ const PlayPage_1 = () => {
     startWidthAnimation(progressPercentage)
   }
 
+  // this function is to calculate how close the user stayed to the answer path.
   function calculateAccuracy (convertedCurrentPath) {
     let distanceOfAnswer,accumulatedDistanceOfUser
     // find point of index of answer path upto user has reached
@@ -317,10 +319,10 @@ const PlayPage_1 = () => {
       <LinearGradientBackground>
         {isPathCorrect.isCompleted && 
         <>
-          <Animated.View style={[styles.congratsContainer, {left:-40,transform: [{scale:adjustedScale(screenWidth)/5},{ translateY:congratsTranslateY }]}]}>
+          <Animated.View style={[styles.congratsContainer, {left:-40,transform: [{scale:adjustedScale()/5},{ translateY:congratsTranslateY }]}]}>
             <CongratsSVG/>
           </Animated.View>
-          <Animated.View style={[styles.congratsContainer, {right:-40,transform: [{scale:adjustedScale(screenWidth)/5},{ translateY:congratsTranslateY },{ scaleX: -1 }]} ]}>
+          <Animated.View style={[styles.congratsContainer, {right:-40,transform: [{scale:adjustedScale()/5},{ translateY:congratsTranslateY },{ scaleX: -1 }]} ]}>
             <CongratsSVG/>
           </Animated.View>
         </>
@@ -335,7 +337,7 @@ const PlayPage_1 = () => {
         )}
 
         <CustomDrawingPage
-          thickness={setThickness(screenWidth)}
+          thickness={setThickness()}
           currentPath={currentPath}
           handleFirstTouch={handleFirstTouch}
           handleDraw={handleDraw}
@@ -376,9 +378,9 @@ const PlayPage_1 = () => {
           <Defs>
             <G
               id='treble-clef-on-staff-line'
-              scale={adjustedScale(screenWidth)}
-              x={adjustedX(screenWidth)}
-              y={adjustedY(screenHeight, screenWidth)}
+              scale={adjustedScale()}
+              x={adjustedX()}
+              y={adjustedY()}
               >
               <TrebleClefWithStaffLines
                 opacityTrebleClef={0.1}
