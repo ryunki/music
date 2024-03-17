@@ -3,7 +3,14 @@ import { StyleSheet, View, Text, Modal, Pressable } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { SPACING } from '../../../theme/theme'
 import LinearGradientUI from './LinearGradientUI'
+import { useFonts,PalanquinDark_400Regular,} from '@expo-google-fonts/palanquin-dark'
 const CustomModal = ({ text, modalVisible, setModalVisible }) => {
+  
+  let [fontsLoaded, fontError] = useFonts({PalanquinDark_400Regular,})
+  if (!fontsLoaded && !fontError) {
+    console.log('no loaded')
+    return null
+  }
   return (
     <>
       {/* <View style={styles.container}> */}

@@ -16,13 +16,7 @@ import CustomDrawingPage from '../../components/CustomDrawingPage'
 import TrebleClefWithStaffLines from './components/TrebleClefWithStaffLines'
 import LinearGradientBackground from './components/LinearGradientBackground'
 
-import {
-  useFonts,
-  PalanquinDark_400Regular,
-  PalanquinDark_500Medium,
-  PalanquinDark_600SemiBold,
-  PalanquinDark_700Bold,
-} from '@expo-google-fonts/palanquin-dark'
+import {useFonts,PalanquinDark_400Regular,} from '@expo-google-fonts/palanquin-dark'
 
 import CustomModal from '../../components/UI/CustomModal'
 import StartingPoint from '../../components/UI/StartingPoint'
@@ -30,7 +24,7 @@ import CustomButton from '../../components/UI/CustomButton';
 import CongratsSVG from '../../components/SVG/CongratsSVG';
 import useSound from '../../hooks/useSound'
 
-import { adjustedAllowance, setThickness, adjustedScale,adjustedX,adjustedY } from '../../../utils/functions/playPage_1'
+import { adjustedAllowance, setThickness, adjustedScale, adjustedX, adjustedY } from '../../../utils/functions/playPage_1'
 import { useSelector } from 'react-redux';
 import { isPhone } from '../../../utils/functions/playPage_2';
 
@@ -39,14 +33,21 @@ const GRAY_AREA_EASY = 3
 const GRAY_AREA_HARD = 2.8
 // user shouldn't be drawing 50 pixels more than the answer path for every check point
 const ACCURACY_LIMIT_EASY = 60
-const ACCURACY_LIMIT_HARD = 45
+const ACCURACY_LIMIT_HARD = 35
+// constant words
+const EASY = 'Easy'
+const HARD = 'Hard'
+const SUCCEED = 'Nice!'
+const FAIL = 'Try again!'
+const PROGRESS = 'Progress'
 
 const PlayPage_1 = () => {
   const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
   
   const {buttonSound, failSound, congratsSound} = useSound(sound)
   // get width of the progress bar when it's 100%. this state is used for animation
-  const [progressBarWidth, setProgressBarWidth] = useState(0)
+  // initial value is 1000 so that the yellow progression bar doesnt show up at the beginning (flash)
+  const [progressBarWidth, setProgressBarWidth] = useState(1000)
   const [currentPath, setCurrentPath] = useState('')
   // answer path for user to compare every coords and remove one by one until there is nothing left
   const [answerPath, setAnswerPath] = useState([])
@@ -55,10 +56,10 @@ const PlayPage_1 = () => {
     isCompleted: false,
     progress: 0,
   })
-  const [alertMessage, setAlertMessage] = useState('Try again!')
+  const [alertMessage, setAlertMessage] = useState(FAIL)
   const [modalVisible, setModalVisible] = useState(false)
   // for difficulty buttons
-  const [difficulty, setDifficulty] = useState('Easy')
+  const [difficulty, setDifficulty] = useState(EASY)
   // mode change 
   const [modeIsTrebleClef, setModeIsTrebleClef] = useState(true)
 
@@ -97,9 +98,8 @@ const PlayPage_1 = () => {
     }).start()
   }
 
-  const handleLayout = (event) => {
+  function handleLayout(event) {
     const { width } = event.nativeEvent.layout;
-    console.log('handleLayout: ',width)
     setProgressBarWidth(width)
   }
   const headerHeight = useHeaderHeight()
@@ -108,12 +108,7 @@ const PlayPage_1 = () => {
   // to detect if current page is focused or not
   const isFocused = useIsFocused()
 
-  let [fontsLoaded, fontError] = useFonts({
-    PalanquinDark_400Regular,
-    PalanquinDark_500Medium,
-    PalanquinDark_600SemiBold,
-    PalanquinDark_700Bold,
-  })
+  let [fontsLoaded, fontError] = useFonts({PalanquinDark_400Regular,})
 
   // takes ["123","234","345","456"... ] as parameter
   const ANSWER_TREBLE_CLEF = convertArrayToObject(CORRECT_PATH_TREBLE_CLEF.split(' '))
@@ -124,19 +119,15 @@ const PlayPage_1 = () => {
 
   // check distance from every check point
   const isUserOnTrack = (answerCoord, recentUserCoord) => {
-    const GRAY_AREA = difficulty === 'Easy' ? GRAY_AREA_EASY : GRAY_AREA_HARD
+    const GRAY_AREA = difficulty === EASY ? GRAY_AREA_EASY : GRAY_AREA_HARD
     const distance = calculateDistance(answerCoord[0], recentUserCoord)
     const allwowance =  adjustedAllowance(difficulty)
     if (distance <= allwowance) {
-      console.log('distance is within the adjustedAllowance')
       return true
       // this is the point where user fails
-    // } else if (distance > allwowance * LEVEL) {
     } else if (distance > allwowance * GRAY_AREA) {
-      console.log('distance is over the adjustedAllowance')
       return false
     }
-    // console.log('distance, allwowance* LEVEL: ',distance, allwowance* GRAY_AREA)
   }
 
   // convert string path to an object array
@@ -160,18 +151,16 @@ const PlayPage_1 = () => {
 
 
   const onPressMode = (text) => {
-    console.log('button pressed!', text)
     setModeIsTrebleClef(!modeIsTrebleClef)
     buttonSound()
   }
 
   const onPressButton = (text) => {
-    console.log('button pressed!', text)
     setDifficulty(text)
     buttonSound()
   }
   function userFailed () {
-    setAlertMessage('Try again!')
+    setAlertMessage(FAIL)
     setModalVisible(true)
     // reset the answer path after user failed 
     setAnswerPath(SCALED_TREBLE_CLEF_OBJECT)
@@ -193,10 +182,10 @@ const PlayPage_1 = () => {
 
   // this function is to calculate how close the user stayed to the answer path.
   function calculateAccuracy (convertedCurrentPath) {
-    let distanceOfAnswer,accumulatedDistanceOfUser
+    let distanceOfAnswer,accumulatedDistanceOfUser = 0
     // find point of index of answer path upto user has reached
     const progressedLength = SCALED_TREBLE_CLEF_OBJECT.length - answerPath.length
-    if (progressedLength > 1) {
+    if (progressedLength > 0) {
       // calculate total distance upto given index
       distanceOfAnswer = calculateDistanceOfCoords(SCALED_TREBLE_CLEF_OBJECT.slice(0,progressedLength))
     }
@@ -217,7 +206,7 @@ const PlayPage_1 = () => {
     else if (userOnTrack === undefined){
       const accuracy = calculateAccuracy(convertedCurrentPath)
       // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
-      const limit = difficulty === 'Easy' ? ACCURACY_LIMIT_EASY: ACCURACY_LIMIT_HARD
+      const limit = difficulty === EASY ? ACCURACY_LIMIT_EASY: ACCURACY_LIMIT_HARD
       if (accuracy > limit){
         userFailed()
       }
@@ -228,7 +217,6 @@ const PlayPage_1 = () => {
   }
 
   function handleFirstTouch (x,y) {
-    console.log('first touch',x,y)
     // prevent from getting the results by touching the screen while celebrating animation is running
     if(!isPathCorrect.isCompleted){
       // setCurrentPath(`${x} ${y}`)
@@ -264,14 +252,14 @@ const PlayPage_1 = () => {
       userOnTrackHandler(userOnTrack, answerPath, convertedCurrentPath)
     } else {
       setIsPathCorrect({ isCompleted: true, progress: 100 })
-      setAlertMessage('Nice!')
+      setAlertMessage(SUCCEED)
     }
     // console.log('answerPath: ',answerPath)
   }
 
   function handleReleaseTouch () {
     if(!isPathCorrect.isCompleted){
-      setAlertMessage('Try again!')
+      setAlertMessage(FAIL)
       setModalVisible(true)
     }
   }
@@ -291,13 +279,11 @@ const PlayPage_1 = () => {
     resetWidthAnimation()
     setCurrentPath('')
     setIsPathCorrect({isCompleted:false, progress:0})
-    setAlertMessage('Try again!')
+    setAlertMessage(FAIL)
   },[difficulty])
 
   // whenever user has completed the progress
   useEffect(function startCongratsAnimation() {
-    console.log('isPathCorrect.isCompleted: ',isPathCorrect.isCompleted)
-    console.log('widthExpandAnimation: ',widthExpandAnimation)
     if(isPathCorrect.isCompleted){
       congratsSound()
       congratsAnimation.start()
@@ -305,7 +291,7 @@ const PlayPage_1 = () => {
         resetWidthAnimation()
         setCurrentPath('')
         setIsPathCorrect({isCompleted:false, progress:0})
-        setAlertMessage('Try again!')
+        setAlertMessage(FAIL)
         congratsAnimation.reset()
       },2000)
       return () => {
@@ -365,7 +351,7 @@ const PlayPage_1 = () => {
           isCompleted={isPathCorrect.isCompleted}
           >
           <View style={[styles.textContainer]}>
-            <Text style={styles.progessTitle}>{alertMessage === 'Nice!' ? 'Nice!': 'Progress'}</Text>
+            <Text style={styles.progessTitle}>{alertMessage === SUCCEED ? SUCCEED: PROGRESS}</Text>
             <View style={{width: '100%',alignItems: 'center',justifyContent: 'center',}}>
               <LinearGradient
                 colors={[TWO_TONE_PURPLE.c100, TWO_TONE_PURPLE.c200]}
@@ -420,8 +406,8 @@ const PlayPage_1 = () => {
       /> */}
         </CustomDrawingPage>
         <View style={[styles.buttonContainer, {bottom:20}]}>
-          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={'Easy'} fontSize={30} opacity={difficulty==='Easy' ? 1: 0.5}/>
-          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={'Hard'} fontSize={30} opacity={difficulty==='Hard' ? 1: 0.5}/>
+          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={EASY} fontSize={30} opacity={difficulty===EASY ? 1: 0.5}/>
+          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={HARD} fontSize={30} opacity={difficulty===HARD ? 1: 0.5}/>
         </View>
       </LinearGradientBackground>
     </>

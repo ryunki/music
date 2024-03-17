@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "TrebleClef",
+    "slug": "TrebleClef",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.jpg",
-      "resizeMode": "contain",
+      "image": "./assets/splash_no_text.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": [
@@ -18,16 +18,23 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ryunkishin.TrebleClef"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3e2ed991-f69c-4f10-b696-2cf98b2f18cc"
+      }
+    }
   }
 }

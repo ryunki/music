@@ -3,9 +3,14 @@ import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { BORDER_PURPLE, BUTTON_COLOR, COLOR, SPACING } from '../../../theme/theme'
 import { isPhone } from '../../../utils/functions/playPage_2'
+import { useFonts,PalanquinDark_400Regular,} from '@expo-google-fonts/palanquin-dark'
 
 const CustomButton = ({text, fontSize, onPress, opacity,minWidth, lineHeight, borderRadius}) => {
-
+  let [fontsLoaded, fontError] = useFonts({PalanquinDark_400Regular,})
+  if (!fontsLoaded && !fontError) {
+    console.log('no loaded')
+    return null
+  }
   return (
     <View style={[styles.modalContainer, {opacity, borderRadius}]}>
       <LinearGradient colors={[BUTTON_COLOR.c100,BUTTON_COLOR.c200,BUTTON_COLOR.c300,BUTTON_COLOR.c400,BUTTON_COLOR.c500]}

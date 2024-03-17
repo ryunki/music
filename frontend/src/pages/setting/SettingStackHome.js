@@ -32,25 +32,24 @@ const SettingStackHome = ({}) => {
     }
   }
 
-  
   return (
     <LinearGradientBackground>
       <View style={styles.musicContainer}>
         <Text style={styles.title}>Music</Text>
         <View style={styles.buttonWrapper}>
-          <CustomButton text={'On'} fontSize={30} onPress={onPressMusicButton} opacity={music ? 0.5 : 1}/>
+          <CustomButton text={'On'} fontSize={30} onPress={onPressMusicButton} opacity={!music ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
         </View>
         <View style={styles.buttonWrapper}>
-          <CustomButton text={'Off'} fontSize={30} onPress={onPressMusicButton} opacity={!music ? 0.5 : 1}/>
+          <CustomButton text={'Off'} fontSize={30} onPress={onPressMusicButton} opacity={music ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
         </View>
       </View>
       <View style={styles.soundContainer}>
         <Text style={styles.title}>Sound</Text>
         <View style={styles.buttonWrapper}>
-          <CustomButton text={'On'} fontSize={30} onPress={onPressSoundButton} opacity={sound ? 0.5 : 1}/>
+          <CustomButton text={'On'} fontSize={30} onPress={onPressSoundButton} opacity={!sound ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
         </View>
         <View style={styles.buttonWrapper}> 
-          <CustomButton text={'Off'} fontSize={30} onPress={onPressSoundButton} opacity={!sound ? 0.5 : 1}/>
+          <CustomButton text={'Off'} fontSize={30} onPress={onPressSoundButton} opacity={sound ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
         </View>
       </View>
     </LinearGradientBackground>
@@ -62,15 +61,11 @@ export default SettingStackHome
 const styles = StyleSheet.create({
   musicContainer:{
     flex:1,
-    // justifyContent:'center',
     alignItems:'center',
-    // backgroundColor:'gray'
   },
   soundContainer:{
     flex:1,
-    // justifyContent:'center',
     alignItems:'center',
-    // backgroundColor:'brown'
   },
   title:{
     marginTop: 20,
@@ -80,7 +75,6 @@ const styles = StyleSheet.create({
     color: COLOR.yellow300,
     textShadowColor: 'black',
     textShadowRadius: 10,
-    // backgroundColor:'skyblue'
   },
   text:{
     textAlign: 'center',

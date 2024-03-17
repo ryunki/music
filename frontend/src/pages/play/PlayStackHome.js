@@ -56,16 +56,19 @@ const styles = StyleSheet.create({
   },
   borderLine:{
     borderColor:'black',
-    borderWidth:3,
+    borderWidth:5,
     borderRadius:SPACING.space_20,
     marginTop:'10%',
     flex:1,
     height:300,
     width:300,
-    shadowOpacity:1,
-    elevation: 10,
-    shadowColor:'black',
-    overflow:'hidden'
+    // this background covers little gap between the borderline and the lineargradient component
+    backgroundColor:'black',
+    // shadowOpacity:1,
+    // elevation: 10,
+    // shadowColor:'black',
+    overflow:'hidden',
+
   },
   linearGradientStageButtons:{
     padding:SPACING.space_20,
