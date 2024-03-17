@@ -6,13 +6,9 @@ const useSound = (isSound) => {
   const [sound, setSound] = useState()
   
   async function turnOnSound(sound) {
-    console.log('turn on sound!!!', isSound)
     if(isSound){
-      console.log('sound effect is on', isSound)
       setSound(sound)
       await sound.playAsync()
-    }else{
-      console.log('sound effect is off', isSound)
     }
   }
 

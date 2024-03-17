@@ -4,17 +4,17 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { BORDER_PURPLE, BUTTON_COLOR, COLOR, SPACING } from '../../../theme/theme'
 import { isPhone } from '../../../utils/functions/playPage_2'
 
-const CustomButton = ({text, fontSize, onPress, opacity}) => {
+const CustomButton = ({text, fontSize, onPress, opacity,minWidth, lineHeight, borderRadius}) => {
 
   return (
-    <View style={[styles.modalContainer, {opacity}]}>
+    <View style={[styles.modalContainer, {opacity, borderRadius}]}>
       <LinearGradient colors={[BUTTON_COLOR.c100,BUTTON_COLOR.c200,BUTTON_COLOR.c300,BUTTON_COLOR.c400,BUTTON_COLOR.c500]}
         start={{ x: 0.5, y: 1 }}
         end={{ x: 0.5, y: 0 }}
         locations={[0.03, 0.15, 0.5, 0.85, 0.97]}
         style={styles.wrapper}>
           <Pressable onPress={() => onPress(text)}>
-            <Text style={[styles.text,{fontSize}]}>{text}</Text>
+            <Text style={[styles.text,{fontSize, minWidth, lineHeight}]}>{text}</Text>
           </Pressable>
       </LinearGradient>
     </View>
@@ -28,13 +28,14 @@ const styles = StyleSheet.create({
     // alignItems:'center',
     backgroundColor: BORDER_PURPLE.c100,
     borderColor: BORDER_PURPLE.c100,
-    borderRadius: 20,
+    // borderRadius: 20,
     borderWidth: 2,
     overflow:'hidden',
     // minWidth:50,
     marginHorizontal: isPhone() ? 35 : 50,
   },
   wrapper: {
+    // paddingHorizontal: isPhone() ? SPACING.space_10 : SPACING.space_20,
     paddingHorizontal: isPhone() ? SPACING.space_10 : SPACING.space_20,
     // marginHorizontal:SPACING.space_20,
     // zIndex: 1,
@@ -48,10 +49,10 @@ const styles = StyleSheet.create({
     textShadowRadius: 5,
     // this lineheight adjusts the text right in the center vertically 
     // because the fontsize is large.
-    lineHeight: 50,
+    // lineHeight: 50,
     // set minwidth because the custom font's default size is too large the text shadow cuts off at the edge of the text box
     // adding padding doesn't work
-    minWidth:80,
+    // minWidth:80,
   },
 })
 export default CustomButton

@@ -9,8 +9,7 @@ const TrebleClefWithStaffLines = ({stroke,strokeWidth, fillStaffLines, fillTrebl
   // {console.log('fillTrebleClef',fillTrebleClef)}
   return (
     <>
-
-    <G  fill={fillStaffLines} stroke={stroke} strokeWidth={strokeWidth-1} >
+    <G fill={fillStaffLines} stroke={stroke} strokeWidth={strokeWidth-1} >
       <Path  d='m6.25,51.25h22.933c1.612,0,1.612-2.5,0-2.5H6.25C4.638,48.75,4.638,51.25,6.25,51.25z' />
       <Path  d='m93.75,48.75H66.549c-1.612,0-1.612,2.5,0,2.5H93.75C95.362,51.25,95.362,48.75,93.75,48.75z' />
       <Path  d='m93.75,33.75H61.791c-1.612,0-1.612,2.5,0,2.5H93.75C95.362,36.25,95.362,33.75,93.75,33.75z' />

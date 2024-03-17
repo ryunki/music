@@ -32,11 +32,14 @@ import useSound from '../../hooks/useSound'
 
 import { adjustedAllowance, setThickness, adjustedScale,adjustedX,adjustedY } from '../../../utils/functions/playPage_1'
 import { useSelector } from 'react-redux';
+import { isPhone } from '../../../utils/functions/playPage_2';
 
 // let user allow to continue drawing within 3 times the certain distance
-const GRAY_AREA = 3
+const GRAY_AREA_EASY = 3
+const GRAY_AREA_HARD = 2.8
 // user shouldn't be drawing 50 pixels more than the answer path for every check point
-const ACCURACY_LIMIT = 50
+const ACCURACY_LIMIT_EASY = 60
+const ACCURACY_LIMIT_HARD = 45
 
 const PlayPage_1 = () => {
   const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
@@ -56,6 +59,9 @@ const PlayPage_1 = () => {
   const [modalVisible, setModalVisible] = useState(false)
   // for difficulty buttons
   const [difficulty, setDifficulty] = useState('Easy')
+  // mode change 
+  const [modeIsTrebleClef, setModeIsTrebleClef] = useState(true)
+
   // for congrats animation
   const congratsTranslateY = useRef(new Animated.Value(-100)).current
   const congratsAnimation = Animated.spring(congratsTranslateY, {
@@ -116,8 +122,9 @@ const PlayPage_1 = () => {
   // this is for displaying answer path
   const SCALED_TREBLE_CLEF_STRING_ARRAY = convertObjectToArray(SCALED_TREBLE_CLEF_OBJECT)
 
+  // check distance from every check point
   const isUserOnTrack = (answerCoord, recentUserCoord) => {
-    // const LEVEL = difficulty === 'Easy' ? EASY : HARD
+    const GRAY_AREA = difficulty === 'Easy' ? GRAY_AREA_EASY : GRAY_AREA_HARD
     const distance = calculateDistance(answerCoord[0], recentUserCoord)
     const allwowance =  adjustedAllowance(difficulty)
     if (distance <= allwowance) {
@@ -151,6 +158,13 @@ const PlayPage_1 = () => {
     return convertedPath
   }
 
+
+  const onPressMode = (text) => {
+    console.log('button pressed!', text)
+    setModeIsTrebleClef(!modeIsTrebleClef)
+    buttonSound()
+  }
+
   const onPressButton = (text) => {
     console.log('button pressed!', text)
     setDifficulty(text)
@@ -174,7 +188,6 @@ const PlayPage_1 = () => {
     setIsPathCorrect({ isCompleted: false, progress: progressPercentage })
     // update answerPath 
     setAnswerPath(trimmedAnswerPath)
-    console.log('start animation')
     startWidthAnimation(progressPercentage)
   }
 
@@ -204,7 +217,8 @@ const PlayPage_1 = () => {
     else if (userOnTrack === undefined){
       const accuracy = calculateAccuracy(convertedCurrentPath)
       // this prevents a user to draw more than ACCURACY_LIMIT while staying within each check point
-      if (accuracy > ACCURACY_LIMIT){
+      const limit = difficulty === 'Easy' ? ACCURACY_LIMIT_EASY: ACCURACY_LIMIT_HARD
+      if (accuracy > limit){
         userFailed()
       }
     }
@@ -338,7 +352,9 @@ const PlayPage_1 = () => {
             text={alertMessage}
           />
         )}
-
+        <View style={styles.changeMode}>
+         <CustomButton onPress={onPressMode} borderRadius={10}minWidth={40} lineHeight={35} text={'Mode'} fontSize={20} opacity={1}/>
+        </View>
         <CustomDrawingPage
           thickness={setThickness()}
           currentPath={currentPath}
@@ -348,7 +364,7 @@ const PlayPage_1 = () => {
           modalVisible={modalVisible}
           isCompleted={isPathCorrect.isCompleted}
           >
-          <View style={[styles.textContainer, {marginTop: 0}]}>
+          <View style={[styles.textContainer]}>
             <Text style={styles.progessTitle}>{alertMessage === 'Nice!' ? 'Nice!': 'Progress'}</Text>
             <View style={{width: '100%',alignItems: 'center',justifyContent: 'center',}}>
               <LinearGradient
@@ -386,7 +402,7 @@ const PlayPage_1 = () => {
               y={adjustedY()}
               >
               <TrebleClefWithStaffLines
-                opacityTrebleClef={0.1}
+                opacityTrebleClef={modeIsTrebleClef ? 0.1: 0}
                 opacityStaffLines={1}
               />
             </G>
@@ -404,8 +420,8 @@ const PlayPage_1 = () => {
       /> */}
         </CustomDrawingPage>
         <View style={[styles.buttonContainer, {bottom:20}]}>
-          <CustomButton onPress={onPressButton} text={'Easy'} fontSize={30} opacity={difficulty==='Easy' ? 1: 0.5}/>
-          <CustomButton onPress={onPressButton} text={'Hard'} fontSize={30} opacity={difficulty==='Hard' ? 1: 0.5}/>
+          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={'Easy'} fontSize={30} opacity={difficulty==='Easy' ? 1: 0.5}/>
+          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={'Hard'} fontSize={30} opacity={difficulty==='Hard' ? 1: 0.5}/>
         </View>
       </LinearGradientBackground>
     </>
@@ -418,6 +434,7 @@ const styles = StyleSheet.create({
   textContainer: {
     width: '80%',
     alignSelf: 'center',
+    marginTop: isPhone() ? 40 : 20
   },
   progessTitle: {
     marginTop: 20,
@@ -471,4 +488,12 @@ const styles = StyleSheet.create({
   congratsContainer:{
     position:'absolute', zIndex:1,
   },
+  changeMode:{
+    position:'absolute',
+    right: isPhone() ? -10: -10,
+    top:10,
+    zIndex:1,
+    // width:200,
+    // backgroundColor:'gray'
+  }
 })
