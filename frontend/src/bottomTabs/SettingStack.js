@@ -54,7 +54,7 @@ const PlayStack = () => {
   return (
     <Stack.Navigator 
       screenOptions={{
-        // headerShown: false,
+        headerShown: false,
         title:'Setting',
       }}
     >

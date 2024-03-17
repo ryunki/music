@@ -31,6 +31,7 @@ import CongratsSVG from '../../components/SVG/CongratsSVG';
 import useSound from '../../hooks/useSound'
 
 import { adjustedAllowance, setThickness, adjustedScale,adjustedX,adjustedY } from '../../../utils/functions/playPage_1'
+import { useSelector } from 'react-redux';
 
 // let user allow to continue drawing within 3 times the certain distance
 const GRAY_AREA = 3
@@ -38,7 +39,9 @@ const GRAY_AREA = 3
 const ACCURACY_LIMIT = 50
 
 const PlayPage_1 = () => {
-  const {buttonSound, failSound, congratsSound} = useSound()
+  const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
+  
+  const {buttonSound, failSound, congratsSound} = useSound(sound)
   // get width of the progress bar when it's 100%. this state is used for animation
   const [progressBarWidth, setProgressBarWidth] = useState(0)
   const [currentPath, setCurrentPath] = useState('')
@@ -401,8 +404,8 @@ const PlayPage_1 = () => {
       /> */}
         </CustomDrawingPage>
         <View style={[styles.buttonContainer, {bottom:20}]}>
-          <CustomButton onPress={onPressButton} text={'Easy'} fontSize={30} difficulty={difficulty}/>
-          <CustomButton onPress={onPressButton} text={'Hard'} fontSize={30} difficulty={difficulty}/>
+          <CustomButton onPress={onPressButton} text={'Easy'} fontSize={30} opacity={difficulty==='Easy' ? 1: 0.5}/>
+          <CustomButton onPress={onPressButton} text={'Hard'} fontSize={30} opacity={difficulty==='Hard' ? 1: 0.5}/>
         </View>
       </LinearGradientBackground>
     </>
@@ -461,6 +464,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer:{
     flexDirection:'row',
+    justifyContent:'space-between',
+    width:'100%',
     position:'absolute'
   },
   congratsContainer:{

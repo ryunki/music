@@ -12,10 +12,26 @@ import { LinearGradient } from 'expo-linear-gradient'
 import PlayStack from './bottomTabs/PlayStack'
 import SettingStack from './bottomTabs/SettingStack'
 import { BUTTON_COLOR, COLOR } from '../theme/theme'
+import { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import useSound from './hooks/useSound'
 
 const Tab = createBottomTabNavigator()
 
 const MainPage = () => {
+  const music = useSelector((state) => state.toggleSoundAndMusic.music)
+  const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
+  const {stopBackgroundMusic, playBackgroundMusic} = useSound()
+
+  useEffect(() => {
+    console.log('music: ',music)
+    if(music){
+      playBackgroundMusic()
+    }else{
+      stopBackgroundMusic()
+    }
+  }, [music])
+
   return (
     <NavigationContainer>
       <Tab.Navigator

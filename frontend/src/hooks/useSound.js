@@ -2,38 +2,93 @@ import React, { useState, useEffect} from 'react'
 import { Audio } from 'expo-av'
 
 // and any sounds you wish to add in this custom hook.
-const useSound = () => {
+const useSound = (isSound) => {
   const [sound, setSound] = useState()
+  
+  async function turnOnSound(sound) {
+    console.log('turn on sound!!!', isSound)
+    if(isSound){
+      console.log('sound effect is on', isSound)
+      setSound(sound)
+      await sound.playAsync()
+    }else{
+      console.log('sound effect is off', isSound)
+    }
+  }
+
+  async function stopBackgroundMusic() {
+    try{
+      const { sound } = await Audio.Sound.createAsync(require('../../assets/sound/backgroundMusic.mp3'))
+      await sound.stopAsync()
+      setSound(sound)
+    }catch(error){
+      console.log('error', error)
+    }
+    
+    // sound.setIsLoopingAsync(false)
+  }
+  async function playBackgroundMusic() {
+    try{
+      const { sound } = await Audio.Sound.createAsync(require('../../assets/sound/backgroundMusic.mp3'))
+      console.log('Music on')
+      setSound(sound)
+      await sound.playAsync()
+      await sound.setVolumeAsync(0.5)
+      await sound.setIsLoopingAsync(true)
+    }catch(error){
+      console.log('error: ',error)
+    }
+  }
 
   async function buttonSound() {
-    const { sound } = await Audio.Sound.createAsync( require('../../assets/sound/buttonPress.wav')
-    )
-    setSound(sound)
-    await sound.playAsync()
+    try{
+      const { sound } = await Audio.Sound.createAsync( require('../../assets/sound/buttonPress.wav'))
+      turnOnSound(sound)
+    }catch(error){
+      console.log('error: ',error)
+    }
+    // setSound(sound)
+    // await sound.playAsync()
   }
 
   async function congratsSound() {
-    const randomNumberBetween1And2 = Math.floor(Math.random() * 2) + 1
-    const soundFile = randomNumberBetween1And2 === 1 ? await Audio.Sound.createAsync( require('../../assets/sound/succeed_1.wav')) 
-        : await Audio.Sound.createAsync( require('../../assets/sound/succeed_2.wav'))
-    const { sound } = soundFile
-    setSound(sound)
-    await sound.playAsync()
+    try{
+      const randomNumberBetween1And2 = Math.floor(Math.random() * 2) + 1
+      const soundFile = randomNumberBetween1And2 === 1 ? await Audio.Sound.createAsync( require('../../assets/sound/succeed_1.wav')) 
+      : await Audio.Sound.createAsync( require('../../assets/sound/succeed_2.wav'))
+      const { sound } = soundFile
+      turnOnSound(sound)
+    }catch(error){
+      console.log('error: ',error)
+    }
+    // setSound(sound)
+    // await sound.playAsync()
   }
 
   async function failSound() {
-    const soundFile = await Audio.Sound.createAsync( require('../../assets/sound/fail.wav')) 
-    const { sound } = soundFile
-    setSound(sound)
-    await sound.playAsync()
+    try{
+      const soundFile = await Audio.Sound.createAsync( require('../../assets/sound/fail.wav')) 
+      const { sound } = soundFile
+      console.log('fail sound: ',isSound)
+      turnOnSound(sound)
+    }catch(error){
+      console.log('error: ',error)
+    }
+    // setSound(sound)
+    // await sound.playAsync()
   }
   async function correctNoteSound() {
-    const soundFile = await Audio.Sound.createAsync( require('../../assets/sound/correct_note.wav')) 
-    const { sound } = soundFile
-    setSound(sound)
-    await sound.playAsync()
+    try{
+      const soundFile = await Audio.Sound.createAsync( require('../../assets/sound/correct_note.wav')) 
+      const { sound } = soundFile
+      turnOnSound(sound)
+    }catch(error){
+      console.log('error: ',error)
+    }
+    // setSound(sound)
+    // await sound.playAsync()
   }
-
+  
   // without this clean up, the sound will not work after several times
   useEffect(function unloadSound(){
     return sound
@@ -44,7 +99,7 @@ const useSound = () => {
     : undefined
   },[sound])
 
-  return {buttonSound, failSound, congratsSound,correctNoteSound}
+  return {stopBackgroundMusic, playBackgroundMusic, buttonSound, failSound, congratsSound,correctNoteSound}
 }
 
 export default useSound

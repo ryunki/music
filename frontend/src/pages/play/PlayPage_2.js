@@ -18,6 +18,7 @@ import CustomButtonLetter from '../../components/UI/CustomButtonLetter'
 
 import {useFonts,PalanquinDark_400Regular, PalanquinDark_500Medium,PalanquinDark_600SemiBold, PalanquinDark_700Bold,} from '@expo-google-fonts/palanquin-dark'
 import useSound from '../../hooks/useSound'
+import { useSelector } from 'react-redux'
 
 const Y=0
 const X=0
@@ -47,7 +48,9 @@ const NOTE_COORDS = {
 
 const PlayPage_2 = () => {
   let [fontsLoaded, fontError] = useFonts({PalanquinDark_400Regular,PalanquinDark_500Medium,PalanquinDark_600SemiBold,PalanquinDark_700Bold,})
-  const {buttonSound,failSound,congratsSound,correctNoteSound} = useSound()
+  const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
+  
+  const {buttonSound,failSound,congratsSound,correctNoteSound} = useSound(sound)
   const {screenHeight, screenWidth} = screenSize()
 
   const [renderNote, setRenderNote] = useState(0)
@@ -69,6 +72,13 @@ const PlayPage_2 = () => {
     speed:50,
     useNativeDriver: true,
   })
+  const opacity = useRef(new Animated.Value(1)).current
+  const animatedMessageDisappear = Animated.timing(opacity,{
+    toValue: 0,
+    duration:300,
+    useNativeDriver: true,
+  })
+  const animationSequence = Animated.sequence([animatedMessage,animatedMessageDisappear])
   const renderStaffLines = () =>{
     return Array.from({length:5}).map((item, idx) =>{
       return <Rect
@@ -155,7 +165,9 @@ const PlayPage_2 = () => {
     setDisplayAccuracyRate(rate)
 
     translateY.setValue(-10)
-    animatedMessage.start()
+    opacity.setValue(1)
+    // animatedMessage.start()
+    animationSequence.start()
   },[attempts])
 
   useEffect(()=>{
@@ -223,7 +235,7 @@ const PlayPage_2 = () => {
           {/* <AnimatedPath  x={150} y={noteSpring} fill='#000000' d="M 10.3629 24.318 C 4.8659 22.6261 0.5288 18.0286 0.5288 13.8934 C 0.5288 2.1892 25.6684 -2.4425 36.0504 7.349 C 47.2772 17.9372 28.9555 30.0405 10.3629 24.318 Z M 27.131 21.3777 C 30.1896 16.7098 27.2654 7.4613 21.9677 5.0475 C 14.1879 1.5028 9.4192 7.5434 12.6595 16.8383 C 14.9007 23.2674 24.0188 26.1276 27.131 21.3777 Z" /> */}
         </G>
       </Svg>
-      <Animated.View style={[styles.alertMessageWrapper,{transform:[{translateY}]}]}>
+      <Animated.View style={[styles.alertMessageWrapper,{opacity:opacity, transform:[{translateY}]}]}>
           <Text style={[styles.alertMessageText]}>{alertMessage}</Text>
       </Animated.View>
       <View style={[styles.containerLetters, {flex:2}]}>

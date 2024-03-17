@@ -2,11 +2,12 @@ import { LinearGradient } from 'expo-linear-gradient'
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { BORDER_PURPLE, BUTTON_COLOR, COLOR, SPACING } from '../../../theme/theme'
+import { isPhone } from '../../../utils/functions/playPage_2'
 
-const CustomButton = ({text, fontSize, onPress, difficulty}) => {
+const CustomButton = ({text, fontSize, onPress, opacity}) => {
 
   return (
-    <View style={[styles.modalContainer, {opacity: difficulty === text ? 1 : 0.5}]}>
+    <View style={[styles.modalContainer, {opacity}]}>
       <LinearGradient colors={[BUTTON_COLOR.c100,BUTTON_COLOR.c200,BUTTON_COLOR.c300,BUTTON_COLOR.c400,BUTTON_COLOR.c500]}
         start={{ x: 0.5, y: 1 }}
         end={{ x: 0.5, y: 0 }}
@@ -22,18 +23,22 @@ const CustomButton = ({text, fontSize, onPress, difficulty}) => {
 
 const styles = StyleSheet.create({
   modalContainer:{
-    flex:1,
-    justifyContent:'center',
-    alignItems:'center',
-  },
-  wrapper: {
-    paddingHorizontal:SPACING.space_20,
-    zIndex: 1,
-    // this background color fills the gap between the linear gradient and the border line
+    // flex:1,
+    // justifyContent:'center',
+    // alignItems:'center',
     backgroundColor: BORDER_PURPLE.c100,
     borderColor: BORDER_PURPLE.c100,
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 2,
+    overflow:'hidden',
+    // minWidth:50,
+    marginHorizontal: isPhone() ? 35 : 50,
+  },
+  wrapper: {
+    paddingHorizontal: isPhone() ? SPACING.space_10 : SPACING.space_20,
+    // marginHorizontal:SPACING.space_20,
+    // zIndex: 1,
+    // this background color fills the gap between the linear gradient and the border line
   },
   text: {
     textAlign: 'center',
