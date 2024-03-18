@@ -40,7 +40,7 @@ const PlayStackHome = ({navigation}) => {
               </LinearGradient>
             </View>
           ))}
-         
+          
         </ScrollView>
       </LinearGradientBackground>
    

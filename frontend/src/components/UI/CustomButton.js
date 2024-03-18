@@ -5,21 +5,21 @@ import { BORDER_PURPLE, BUTTON_COLOR, COLOR, SPACING } from '../../../theme/them
 import { isPhone } from '../../../utils/functions/playPage_2'
 import { useFonts,PalanquinDark_400Regular,} from '@expo-google-fonts/palanquin-dark'
 
-const CustomButton = ({text, fontSize, onPress, opacity,minWidth, lineHeight, borderRadius}) => {
+const CustomButton = ({text, onPress, buttonProps, opacity}) => {
   let [fontsLoaded, fontError] = useFonts({PalanquinDark_400Regular,})
   if (!fontsLoaded && !fontError) {
     console.log('no loaded')
     return null
   }
   return (
-    <View style={[styles.modalContainer, {opacity, borderRadius}]}>
+    <View style={[styles.modalContainer, {opacity, borderRadius: buttonProps.borderRadius}]}>
       <LinearGradient colors={[BUTTON_COLOR.c100,BUTTON_COLOR.c200,BUTTON_COLOR.c300,BUTTON_COLOR.c400,BUTTON_COLOR.c500]}
         start={{ x: 0.5, y: 1 }}
         end={{ x: 0.5, y: 0 }}
         locations={[0.03, 0.15, 0.5, 0.85, 0.97]}
         style={styles.wrapper}>
           <Pressable onPress={() => onPress(text)}>
-            <Text style={[styles.text,{fontSize, minWidth, lineHeight}]}>{text}</Text>
+            <Text style={[styles.text,{fontSize:buttonProps.fontSize, minWidth:buttonProps.minWidth, lineHeight:buttonProps.lineHeight}]}>{text}</Text>
           </Pressable>
       </LinearGradient>
     </View>

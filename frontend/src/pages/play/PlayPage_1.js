@@ -4,6 +4,7 @@ import {G,Defs,Use} from 'react-native-svg'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useIsFocused } from '@react-navigation/native';
 import { useHeaderHeight } from '@react-navigation/elements'
+import { useSelector } from 'react-redux';
 
 import { COLOR, SPACING, TWO_TONE_ORANGE, TWO_TONE_PURPLE } from '../../../theme/theme'
 import { CORRECT_PATH_TREBLE_CLEF} from '../../../constants/constants'
@@ -25,8 +26,9 @@ import CongratsSVG from '../../components/SVG/CongratsSVG';
 import useSound from '../../hooks/useSound'
 
 import { adjustedAllowance, setThickness, adjustedScale, adjustedX, adjustedY } from '../../../utils/functions/playPage_1'
-import { useSelector } from 'react-redux';
 import { isPhone } from '../../../utils/functions/playPage_2';
+import CongratsAnimation from './components/animation/CongratsAnimation';
+import ProgressionBarAnimation from './components/animation/ProgressionBarAnimation';
 
 // let user allow to continue drawing within 3 times the certain distance
 const GRAY_AREA_EASY = 3
@@ -40,14 +42,20 @@ const HARD = 'Hard'
 const SUCCEED = 'Nice!'
 const FAIL = 'Try again!'
 const PROGRESS = 'Progress'
+const MODE = 'Mode'
 
 const PlayPage_1 = () => {
+  const ADJUSTED_SCALE = adjustedScale()
+  const ADJUSTED_X = adjustedX()
+  const ADJUSTED_Y = adjustedY()
+  const THICKNESS = setThickness()
+
   const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
   
   const {buttonSound, failSound, congratsSound} = useSound(sound)
   // get width of the progress bar when it's 100%. this state is used for animation
   // initial value is 1000 so that the yellow progression bar doesnt show up at the beginning (flash)
-  const [progressBarWidth, setProgressBarWidth] = useState(1000)
+  // const [progressBarWidth, setProgressBarWidth] = useState(1000)
   const [currentPath, setCurrentPath] = useState('')
   // answer path for user to compare every coords and remove one by one until there is nothing left
   const [answerPath, setAnswerPath] = useState([])
@@ -62,49 +70,27 @@ const PlayPage_1 = () => {
   const [difficulty, setDifficulty] = useState(EASY)
   // mode change 
   const [modeIsTrebleClef, setModeIsTrebleClef] = useState(true)
+  // trigger congrats animation 
+  const [startCongratsAnimation, setStartCongratsAnimation] = useState(false)
+  // trigger progress animation 
+  const [startProgressAnimation, setStartProgressAnimation] = useState({isValid:false, progress:0})
 
-  // for congrats animation
-  const congratsTranslateY = useRef(new Animated.Value(-100)).current
-  const congratsAnimation = Animated.spring(congratsTranslateY, {
-    toValue: 0,
-    bounciness:30,
-    useNativeDriver: true, // set to true if possible
-  })
 
-  const animatedWidth = useRef(new Animated.Value(0)).current
-  const inputRange = [0, 100]
-  const outputRange = [-progressBarWidth, 0]
-  const widthExpandAnimation = animatedWidth.interpolate({
-    inputRange,
-    outputRange,
-  })
-  
-  const startWidthAnimation = (progress) => {
-    return Animated.timing(animatedWidth, {
-      toValue: progress,
-      duration: 1000,
-      // bounciness:10,
-      easing: Easing.out(Easing.exp),
-      useNativeDriver: true,
-    }).start()
-  }
-  const resetWidthAnimation = () => {
-    return Animated.timing(animatedWidth, {
-      toValue: 0,
-      duration: 1000,
-      // bounciness:10,
-      easing: Easing.out(Easing.exp),
-      useNativeDriver: true,
-    }).start()
+  const difficultyButtonProps = {
+    borderRadius:20,
+    minWidth:80,
+    lineHeight:50,
+    fontSize: 30,
   }
 
-  function handleLayout(event) {
-    const { width } = event.nativeEvent.layout;
-    setProgressBarWidth(width)
+  const modeButtonProps = {
+    borderRadius:10,
+    minWidth:40,
+    lineHeight:35,  
+    fontSize:20, 
+    opacity:1
   }
-  const headerHeight = useHeaderHeight()
-  const { screenHeight, screenWidth } = screenSize()
-  
+
   // to detect if current page is focused or not
   const isFocused = useIsFocused()
 
@@ -130,32 +116,30 @@ const PlayPage_1 = () => {
     }
   }
 
-  // convert string path to an object array
   // [{x:123,y:123},{...}]
   // this function also takes the asnwer path as well as the displayed path as parameter
   // and convert each coords to the specified scale
   function scaleObjectArrayPath(pathObjectArray) {
     let convertedPath = []
     for (let i = 0; i < pathObjectArray.length; i++) {
-      let x = (
-        parseFloat(pathObjectArray[i].x) * adjustedScale() + adjustedX()
-      ).toFixed(1)
-      let y = (
-        parseFloat(pathObjectArray[i].y) * adjustedScale() + adjustedY()
-      ).toFixed(1)
-      // let y = (parseInt(pathObjectArray[i].y) * adjustedScale()).toFixed(1)
+      const x = scaleCoord(pathObjectArray[i].x, ADJUSTED_X)
+      const y = scaleCoord(pathObjectArray[i].y, ADJUSTED_Y)
       convertedPath = [...convertedPath, { x, y }]
     }
     return convertedPath
   }
 
+  function scaleCoord(coord, axis){
+    return (parseFloat(coord) * ADJUSTED_SCALE + axis).toFixed(1)
+  }
 
-  const onPressMode = (text) => {
+  const onPressMode = () => {
     setModeIsTrebleClef(!modeIsTrebleClef)
     buttonSound()
   }
 
   const onPressButton = (text) => {
+    console.log(text)
     setDifficulty(text)
     buttonSound()
   }
@@ -177,7 +161,8 @@ const PlayPage_1 = () => {
     setIsPathCorrect({ isCompleted: false, progress: progressPercentage })
     // update answerPath 
     setAnswerPath(trimmedAnswerPath)
-    startWidthAnimation(progressPercentage)
+    setStartProgressAnimation({isValid:true, progress: progressPercentage})
+    // startWidthAnimation(progressPercentage)
   }
 
   // this function is to calculate how close the user stayed to the answer path.
@@ -264,6 +249,13 @@ const PlayPage_1 = () => {
     }
   }
 
+  
+  const failFunctions = () => {
+    setCurrentPath('')
+    setIsPathCorrect({isCompleted:false, progress:0})
+    setStartProgressAnimation(false)
+  }
+  
   useEffect(function resetAnswerPath(){
     if (isFocused) {
       console.log('Component is focused');
@@ -273,12 +265,9 @@ const PlayPage_1 = () => {
       // Your logic when the component is not focused
     }
   }, [isFocused])
-
   // whenever user press the difficulty button
   useEffect(function resetPath(){
-    resetWidthAnimation()
-    setCurrentPath('')
-    setIsPathCorrect({isCompleted:false, progress:0})
+    failFunctions()
     setAlertMessage(FAIL)
   },[difficulty])
 
@@ -286,13 +275,11 @@ const PlayPage_1 = () => {
   useEffect(function startCongratsAnimation() {
     if(isPathCorrect.isCompleted){
       congratsSound()
-      congratsAnimation.start()
+      setStartCongratsAnimation(true)
       const timeoutId = setTimeout(()=>{
-        resetWidthAnimation()
-        setCurrentPath('')
-        setIsPathCorrect({isCompleted:false, progress:0})
+        failFunctions()
+        setStartCongratsAnimation(false)
         setAlertMessage(FAIL)
-        congratsAnimation.reset()
       },2000)
       return () => {
         clearTimeout(timeoutId)
@@ -303,9 +290,7 @@ const PlayPage_1 = () => {
   useEffect(() => {
     // if user closes the modal
     if(!modalVisible){
-      resetWidthAnimation()
-      setCurrentPath('')
-      setIsPathCorrect({isCompleted: false,progress: 0,})
+      failFunctions()
     }
   }, [modalVisible])
 
@@ -321,14 +306,7 @@ const PlayPage_1 = () => {
 
       <LinearGradientBackground>
         {isPathCorrect.isCompleted && 
-        <>
-          <Animated.View style={[styles.congratsContainer, {left:-40,transform: [{scale:adjustedScale()/5},{ translateY:congratsTranslateY }]}]}>
-            <CongratsSVG/>
-          </Animated.View>
-          <Animated.View style={[styles.congratsContainer, {right:-40,transform: [{scale:adjustedScale()/5},{ translateY:congratsTranslateY },{ scaleX: -1 }]} ]}>
-            <CongratsSVG/>
-          </Animated.View>
-        </>
+          <CongratsAnimation startCongratsAnimation={startCongratsAnimation}/>
         }   
      
         {modalVisible && (
@@ -339,10 +317,10 @@ const PlayPage_1 = () => {
           />
         )}
         <View style={styles.changeMode}>
-         <CustomButton onPress={onPressMode} borderRadius={10}minWidth={40} lineHeight={35} text={'Mode'} fontSize={20} opacity={1}/>
+         <CustomButton onPress={onPressMode} text={MODE} buttonProps={modeButtonProps}/>
         </View>
         <CustomDrawingPage
-          thickness={setThickness()}
+          thickness={THICKNESS}
           currentPath={currentPath}
           handleFirstTouch={handleFirstTouch}
           handleDraw={handleDraw}
@@ -359,18 +337,8 @@ const PlayPage_1 = () => {
                 end={{ x: 0.5, y: 0 }}
                 locations={[0, 1]}
                 style={styles.linearGradientProgressionBar}>
-                  <Animated.View 
-                    onLayout={handleLayout}
-                    style={[{transform: [{translateX: widthExpandAnimation}],}]}
-                  >
-                  <LinearGradient
-                    colors={[TWO_TONE_ORANGE.c100, TWO_TONE_ORANGE.c200]}
-                    start={{ x: 0.5, y: 1 }}
-                    end={{ x: 0.5, y: 0 }}
-                    locations={[0, 1]}
-                    style={[styles.percentageBar,{ width: `100%` }]}
-                  />
-                  </Animated.View>
+                  {/* display progress bar animation */}
+                  <ProgressionBarAnimation startProgressAnimation={startProgressAnimation}/>
               </LinearGradient>
 
               {/* this displays the progression bar */}
@@ -383,9 +351,9 @@ const PlayPage_1 = () => {
           <Defs>
             <G
               id='treble-clef-on-staff-line'
-              scale={adjustedScale()}
-              x={adjustedX()}
-              y={adjustedY()}
+              scale={ADJUSTED_SCALE}
+              x={ADJUSTED_X}
+              y={ADJUSTED_Y}
               >
               <TrebleClefWithStaffLines
                 opacityTrebleClef={modeIsTrebleClef ? 0.1: 0}
@@ -406,8 +374,8 @@ const PlayPage_1 = () => {
       /> */}
         </CustomDrawingPage>
         <View style={[styles.buttonContainer, {bottom:20}]}>
-          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={EASY} fontSize={30} opacity={difficulty===EASY ? 1: 0.5}/>
-          <CustomButton onPress={onPressButton} borderRadius={20} minWidth={80} lineHeight={50} text={HARD} fontSize={30} opacity={difficulty===HARD ? 1: 0.5}/>
+          <CustomButton onPress={onPressButton} text={EASY} opacity={difficulty === EASY ? 1: 0.5} buttonProps={difficultyButtonProps}/>
+          <CustomButton onPress={onPressButton} text={HARD} opacity={difficulty === HARD ? 1: 0.5} buttonProps={difficultyButtonProps}/>
         </View>
       </LinearGradientBackground>
     </>
@@ -461,19 +429,19 @@ const styles = StyleSheet.create({
 
     overflow: 'hidden',
   },
-  percentageBar: {
-    height: 60,
-    position: 'absolute',
-  },
+  // percentageBar: {
+  //   height: 60,
+  //   position: 'absolute',
+  // },
   buttonContainer:{
     flexDirection:'row',
     justifyContent:'space-between',
     width:'100%',
     position:'absolute'
   },
-  congratsContainer:{
-    position:'absolute', zIndex:1,
-  },
+  // congratsContainer:{
+  //   position:'absolute', zIndex:1,
+  // },
   changeMode:{
     position:'absolute',
     right: isPhone() ? -10: -10,

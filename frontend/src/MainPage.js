@@ -18,6 +18,9 @@ import useSound from './hooks/useSound'
 
 const Tab = createBottomTabNavigator()
 
+const ACTIVE = 40
+const INACTIVE = 30
+
 const MainPage = () => {
   const music = useSelector((state) => state.toggleSoundAndMusic.music)
   const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
@@ -58,7 +61,7 @@ const MainPage = () => {
           options={{ 
             // tabBarLabel: 'Play',
             tabBarIcon: ({focused, color, size})=> {
-              return <Ionicons name="musical-notes-outline" size={focused ? 40 : 30} color={color} 
+              return <Ionicons name="musical-notes-outline" size={focused ? ACTIVE : INACTIVE} color={color} 
             />
             }
             }}
@@ -66,7 +69,7 @@ const MainPage = () => {
         <Tab.Screen name="Setting" component={SettingStack}
           options={{ 
             tabBarIcon: ({focused, color, size})=> {
-              return <Ionicons name="settings-outline" size={focused ? 40 : 30} color={color}/>
+              return <Ionicons name="settings-outline" size={focused ? ACTIVE : INACTIVE} color={color}/>
             }
           }}
           />
