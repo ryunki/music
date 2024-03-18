@@ -8,7 +8,11 @@ const useSound = (isSound) => {
   async function turnOnSound(sound) {
     if(isSound){
       setSound(sound)
-      await sound.playAsync()
+      try{
+        await sound.playAsync()
+      }catch(error){
+        console.log(error)
+      }
     }
   }
 
@@ -65,7 +69,6 @@ const useSound = (isSound) => {
     try{
       const soundFile = await Audio.Sound.createAsync( require('../../assets/sound/fail.wav')) 
       const { sound } = soundFile
-      console.log('fail sound: ',isSound)
       turnOnSound(sound)
     }catch(error){
       console.log('error: ',error)

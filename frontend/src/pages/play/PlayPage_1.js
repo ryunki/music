@@ -3,13 +3,11 @@ import {Easing, StyleSheet,View,Text,Animated,} from 'react-native'
 import {G,Defs,Use} from 'react-native-svg'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useIsFocused } from '@react-navigation/native';
-import { useHeaderHeight } from '@react-navigation/elements'
 import { useSelector } from 'react-redux';
 
-import { COLOR, SPACING, TWO_TONE_ORANGE, TWO_TONE_PURPLE } from '../../../theme/theme'
+import { COLOR, SPACING, TWO_TONE_PURPLE } from '../../../theme/theme'
 import { CORRECT_PATH_TREBLE_CLEF} from '../../../constants/constants'
 
-import { screenSize } from '../../../utils/screenFunctions'
 import { calculateDistance, calculateDistanceOfCoords } from '../../../utils/functions/calculateDistance'
 import {convertArrayToObject,convertObjectToArray } from '../../../utils/functions/convert'
 
@@ -22,7 +20,6 @@ import {useFonts,PalanquinDark_400Regular,} from '@expo-google-fonts/palanquin-d
 import CustomModal from '../../components/UI/CustomModal'
 import StartingPoint from '../../components/UI/StartingPoint'
 import CustomButton from '../../components/UI/CustomButton';
-import CongratsSVG from '../../components/SVG/CongratsSVG';
 import useSound from '../../hooks/useSound'
 
 import { adjustedAllowance, setThickness, adjustedScale, adjustedX, adjustedY } from '../../../utils/functions/playPage_1'
@@ -139,7 +136,6 @@ const PlayPage_1 = () => {
   }
 
   const onPressButton = (text) => {
-    console.log(text)
     setDifficulty(text)
     buttonSound()
   }
@@ -239,7 +235,6 @@ const PlayPage_1 = () => {
       setIsPathCorrect({ isCompleted: true, progress: 100 })
       setAlertMessage(SUCCEED)
     }
-    // console.log('answerPath: ',answerPath)
   }
 
   function handleReleaseTouch () {
@@ -255,7 +250,7 @@ const PlayPage_1 = () => {
     setIsPathCorrect({isCompleted:false, progress:0})
     setStartProgressAnimation(false)
   }
-  
+
   useEffect(function resetAnswerPath(){
     if (isFocused) {
       console.log('Component is focused');
@@ -429,19 +424,14 @@ const styles = StyleSheet.create({
 
     overflow: 'hidden',
   },
-  // percentageBar: {
-  //   height: 60,
-  //   position: 'absolute',
-  // },
+
   buttonContainer:{
     flexDirection:'row',
     justifyContent:'space-between',
     width:'100%',
     position:'absolute'
   },
-  // congratsContainer:{
-  //   position:'absolute', zIndex:1,
-  // },
+
   changeMode:{
     position:'absolute',
     right: isPhone() ? -10: -10,

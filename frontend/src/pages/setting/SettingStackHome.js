@@ -1,6 +1,5 @@
-import {useState, useEffect, useRef}from 'react'
 
-import { ImageBackground, Dimensions , StyleSheet, View, PanResponder, Pressable, Text} from 'react-native'
+import { StyleSheet, View,Text} from 'react-native'
 import { COLOR, SPACING } from '../../../theme/theme'
 import LinearGradientBackground from '../play/components/LinearGradientBackground'
 import CustomButton from '../../components/UI/CustomButton'
@@ -15,7 +14,6 @@ const SettingStackHome = ({}) => {
   const dispatch = useDispatch()
   const onPressMusicButton = (text) =>{
     buttonSound()
-    console.log('turn music: ',text)
     if(text === 'On'){
       dispatch(toggleMusic(true))
     }else{
@@ -23,7 +21,6 @@ const SettingStackHome = ({}) => {
     }
   }
   const onPressSoundButton = (text) =>{
-    console.log('turn sound: ',text)
     buttonSound()
     if(text === 'On'){
       dispatch(toggleSound(true))
@@ -31,25 +28,30 @@ const SettingStackHome = ({}) => {
       dispatch(toggleSound(false))
     }
   }
-
+  const buttonProps = {
+    borderRadius:20,
+    minWidth:80,
+    lineHeight:50,
+    fontSize: 30,
+  }
   return (
     <LinearGradientBackground>
       <View style={styles.musicContainer}>
         <Text style={styles.title}>Music</Text>
         <View style={styles.buttonWrapper}>
-          <CustomButton text={'On'} fontSize={30} onPress={onPressMusicButton} opacity={!music ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
+          <CustomButton text={'On'} onPress={onPressMusicButton} opacity={!music ? 0.5 : 1} buttonProps={buttonProps}/>
         </View>
         <View style={styles.buttonWrapper}>
-          <CustomButton text={'Off'} fontSize={30} onPress={onPressMusicButton} opacity={music ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
+          <CustomButton text={'Off'} onPress={onPressMusicButton} opacity={music ? 0.5 : 1} buttonProps={buttonProps}/>
         </View>
       </View>
       <View style={styles.soundContainer}>
         <Text style={styles.title}>Sound</Text>
         <View style={styles.buttonWrapper}>
-          <CustomButton text={'On'} fontSize={30} onPress={onPressSoundButton} opacity={!sound ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
+          <CustomButton text={'On'} onPress={onPressSoundButton} opacity={!sound ? 0.5 : 1} buttonProps={buttonProps}/>
         </View>
         <View style={styles.buttonWrapper}> 
-          <CustomButton text={'Off'} fontSize={30} onPress={onPressSoundButton} opacity={sound ? 0.5 : 1} borderRadius={20} minWidth={80} lineHeight={50}/>
+          <CustomButton text={'Off'} onPress={onPressSoundButton} opacity={sound ? 0.5 : 1} buttonProps={buttonProps}/>
         </View>
       </View>
     </LinearGradientBackground>
