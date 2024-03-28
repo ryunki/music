@@ -2,6 +2,9 @@ import React, {useState, useRef, useEffect} from 'react'
 import {Easing, StyleSheet,View,Text,Animated,} from 'react-native'
 import { TWO_TONE_ORANGE } from '../../../../../theme/theme'
 import { LinearGradient } from 'expo-linear-gradient'
+import { isLargeTablet } from '../../../../../utils/functions/playPage_2'
+
+const PROGRESS_BAR = isLargeTablet() ? 90: 60 
 
 const ProgressionBarAnimation = ({startProgressAnimation}) => {
   // get width of the progress bar when it's 100%. this state is used for animation
@@ -67,7 +70,7 @@ const ProgressionBarAnimation = ({startProgressAnimation}) => {
 }
 const styles = StyleSheet.create({
   percentageBar: {
-    height: 60,
+    height: PROGRESS_BAR,
     position: 'absolute',
   },
 })

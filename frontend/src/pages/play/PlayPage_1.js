@@ -23,9 +23,10 @@ import CustomButton from '../../components/UI/CustomButton';
 import useSound from '../../hooks/useSound'
 
 import { adjustedAllowance, setThickness, adjustedScale, adjustedX, adjustedY } from '../../../utils/functions/playPage_1'
-import { isPhone } from '../../../utils/functions/playPage_2';
+import { isLargeTablet, isPhone } from '../../../utils/functions/playPage_2';
 import CongratsAnimation from './components/animation/CongratsAnimation';
 import ProgressionBarAnimation from './components/animation/ProgressionBarAnimation';
+import { screenSize } from '../../../utils/screenFunctions';
 
 // let user allow to continue drawing within 3 times the certain distance
 const GRAY_AREA_EASY = 3
@@ -41,12 +42,19 @@ const FAIL = 'Try again!'
 const PROGRESS = 'Progress'
 const MODE = 'Mode'
 
+const TITLE_FONT_SIZE = isLargeTablet() ? 100 : 60
+const DIFFICULTY_FONT_SIZE = isLargeTablet() ? 60 : 30
+const MODE_LINE_HEIGHT = isLargeTablet() ? 35 : 35
+const DIFFICULTY_LINE_HEIGHT = isLargeTablet() ? 95 : 50
+const PROGRESS_BAR = isLargeTablet() ? 90: 60 
+
 const PlayPage_1 = () => {
   const ADJUSTED_SCALE = adjustedScale()
   const ADJUSTED_X = adjustedX()
   const ADJUSTED_Y = adjustedY()
   const THICKNESS = setThickness()
-
+  const { screenHeight, screenWidth } = screenSize()
+  
   const sound = useSelector((state) => state.toggleSoundAndMusic.sound)
   
   const {buttonSound, failSound, congratsSound} = useSound(sound)
@@ -76,15 +84,15 @@ const PlayPage_1 = () => {
   const difficultyButtonProps = {
     borderRadius:20,
     minWidth:80,
-    lineHeight:50,
-    fontSize: 30,
+    lineHeight:DIFFICULTY_LINE_HEIGHT,
+    fontSize: DIFFICULTY_FONT_SIZE,
   }
 
   const modeButtonProps = {
     borderRadius:10,
     minWidth:40,
-    lineHeight:35,  
-    fontSize:20, 
+    lineHeight:50,  
+    fontSize: isLargeTablet() ? 30 : 20, 
     opacity:1
   }
 
@@ -388,7 +396,7 @@ const styles = StyleSheet.create({
   progessTitle: {
     marginTop: 20,
     textAlign: 'center',
-    fontSize: 60,
+    fontSize: TITLE_FONT_SIZE,
     fontFamily: 'PalanquinDark_400Regular',
     color: COLOR.yellow300,
     textShadowColor: 'black',
@@ -397,7 +405,7 @@ const styles = StyleSheet.create({
   text: {
     textAlign: 'center',
     color: COLOR.yellow300,
-    fontSize: 35,
+    fontSize: DIFFICULTY_FONT_SIZE,
     fontWeight: 'bold',
     position: 'absolute',
     textShadowColor: 'black',
@@ -411,7 +419,7 @@ const styles = StyleSheet.create({
     elevation: 10,
     shadowColor: 'black',
 
-    height: 60,
+    height: PROGRESS_BAR,
     width: '100%',
 
     // this fill in the gap border of the component and the background color with borderRadius

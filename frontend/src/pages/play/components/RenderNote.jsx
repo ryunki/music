@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet} from 'react-native'
 import Svg, { Path,Rect, G } from 'react-native-svg'
 
-import { adjustedY, adjustedScale } from '../../../../utils/functions/playPage_2'
+import { adjustedY, adjustedScale, adjustedX, isLargeTablet } from '../../../../utils/functions/playPage_2'
 import { screenSize } from '../../../../utils/screenFunctions'
 
 const DISTANCE_BETWEEN_EACH_STAFFLINE=24
@@ -12,6 +12,7 @@ const HEIGHT_FOR_EACH_STAFFLINE=2.3
 const RenderNote = ({renderNote}) => {
   const {screenHeight, screenWidth} = screenSize()
   const ADJUSTED_Y = adjustedY()
+  const ADJUSTED_X = adjustedX()
   const ADJUSTED_SCALE = adjustedScale()
 
   const renderStaffLines = () =>{

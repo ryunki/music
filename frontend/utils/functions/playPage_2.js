@@ -13,7 +13,7 @@ const SMALLEST_MOBILE = 1.5
 const SMALL_MOBILE = 1.5
 // Tablet scale
 const TABLET = 1.8
-const LARGE_TABLET = 1.8
+const LARGE_TABLET = 2.8
 
 // thickness of path
 const PHONE_THICKNESS = 14
@@ -97,6 +97,14 @@ export function setThickness() {
     } else if (screenWidth >= MOBILE_WIDTH && screenWidth < TABLET_WIDTH) {
       return false
     } else if (screenWidth >= TABLET_WIDTH) {
+      return false
+    }
+  }
+
+  export function isLargeTablet(){
+    if (screenWidth >= TABLET_WIDTH) {
+      return true
+    }else{
       return false
     }
   }

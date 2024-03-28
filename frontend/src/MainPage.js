@@ -15,11 +15,14 @@ import { BUTTON_COLOR, COLOR } from '../theme/theme'
 import { useState, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import useSound from './hooks/useSound'
+import { isLargeTablet } from '../utils/functions/playPage_2'
 
 const Tab = createBottomTabNavigator()
 
 const ACTIVE = 40
 const INACTIVE = 30
+
+const ICON_WIDTH = isLargeTablet() && 40
 
 const MainPage = () => {
   const music = useSelector((state) => state.toggleSoundAndMusic.music)
@@ -61,15 +64,18 @@ const MainPage = () => {
           options={{ 
             // tabBarLabel: 'Play',
             tabBarIcon: ({focused, color, size})=> {
-              return <Ionicons name="musical-notes-outline" size={focused ? ACTIVE : INACTIVE} color={color} 
-            />
+              return <View style={{ width:ICON_WIDTH }}>
+                <Ionicons name="musical-notes-outline" size={focused ? ACTIVE : INACTIVE} color={color} />
+            </View>
             }
             }}
           />
         <Tab.Screen name="Setting" component={SettingStack}
           options={{ 
             tabBarIcon: ({focused, color, size})=> {
-              return <Ionicons name="settings-outline" size={focused ? ACTIVE : INACTIVE} color={color}/>
+              return <View style={{ width:ICON_WIDTH }}>
+                <Ionicons name="settings-outline" size={focused ? ACTIVE : INACTIVE} color={color}/>
+              </View>
             }
           }}
           />

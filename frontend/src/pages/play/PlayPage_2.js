@@ -9,7 +9,7 @@ import CustomButtonLetter from '../../components/UI/CustomButtonLetter'
 
 import { BUTTON_COLOR, COLOR, SPACING } from '../../../theme/theme'
 import { screenSize } from '../../../utils/screenFunctions'
-import { adjustedScale,adjustedY, isPhone } from '../../../utils/functions/playPage_2'
+import { adjustedScale,adjustedY, isPhone, isLargeTablet } from '../../../utils/functions/playPage_2'
 import useSound from '../../hooks/useSound'
 
 import { useSelector } from 'react-redux'
@@ -19,6 +19,8 @@ const ANIMATION_MESSAGE_DROP = -10
 
 const CORRECT = 'Correct'
 const WRONG = 'Wrong'
+
+const FONT_SIZE =  isPhone() ? 25 : isLargeTablet() ? 80 : 30
 
 const fontTitle = {
   color:COLOR.orange100,
@@ -173,7 +175,7 @@ const PlayPage_2 = () => {
             start={{ x: 0.5, y: 1 }}
             end={{ x: 0.5, y: 0 }}
             locations={[0.03, 0.15, 0.5, 0.85, 0.97]}
-            style={[styles.scoreContentsContainer, {backgroundColor:'gray'}]}>
+            style={[styles.scoreContentsContainer, ]}>
               <View style={{justifyContent:'center',}}>
                 <Text style={[fontTitle, styles.ContainerTitle]}>SCORE BOARD</Text>
               </View>
@@ -203,7 +205,7 @@ const PlayPage_2 = () => {
       </Animated.View>
       <View style={[styles.containerLetters, {flex:2}]}>
         {LETTERS.map((letter, idx)=>(
-          <CustomButtonLetter key={idx} onPress={onPressLetter} text={letter} fontSize={isPhone() ? 25 : 40} pressedLetter={pressedLetter} setPressedLetter={setPressedLetter}/>
+          <CustomButtonLetter key={idx} onPress={onPressLetter} text={letter} fontSize={FONT_SIZE} pressedLetter={pressedLetter} setPressedLetter={setPressedLetter}/>
           ))
         }
       </View>
@@ -235,11 +237,18 @@ const styles = StyleSheet.create({
     marginTop:isPhone()? '15%': '10%',
     borderColor: '#5E0C9E',
     backgroundColor: '#5E0C9E',
+    // backgroundColor:'gray',
+    // width: isLargeTablet() && '80%',
+    // height: isLargeTablet() && '80%'
+    width: isLargeTablet() && '80%',
+    // height: '80%'
+    
   },
   scoreContentsContainer: {
     paddingVertical:SPACING.space_10,
     paddingHorizontal:SPACING.space_8,
-    maxWidth:400,
+    // maxWidth: 600,
+    height: isLargeTablet() && '100%',
     alignItems:'center',
     justifyContent:'center'
   },
@@ -249,18 +258,18 @@ const styles = StyleSheet.create({
     marginHorizontal:8,
   },
   ContainerTitle:{
-    fontSize:35,
+    fontSize: isLargeTablet() ? 50 : 35,
     letterSpacing: 2,
     fontFamily: 'PalanquinDark_400Regular',
   },
   contentTitle:{
-    fontSize:20,
+    fontSize: isLargeTablet() ? 40 : 20,
     letterSpacing: 2,
     fontFamily: 'PalanquinDark_400Regular',
   },
   contentText:{
     textAlign:'center',
-    fontSize:18,
+    fontSize: isLargeTablet() ? 40 : 18,
   },
   alertMessageWrapper:{
     // backgroundColor:'blue',
@@ -269,7 +278,7 @@ const styles = StyleSheet.create({
     alignItems:'center',
   },
   alertMessageText:{
-    fontSize:40,
+    fontSize: isLargeTablet() ? 80: 40,
     fontFamily: 'PalanquinDark_400Regular',
     color:BUTTON_COLOR.c300,
     textShadowColor: 'black',

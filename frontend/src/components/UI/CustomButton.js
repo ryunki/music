@@ -8,7 +8,7 @@ import { useFonts,PalanquinDark_400Regular,} from '@expo-google-fonts/palanquin-
 const CustomButton = ({text, onPress, buttonProps, opacity}) => {
   let [fontsLoaded, fontError] = useFonts({PalanquinDark_400Regular,})
   if (!fontsLoaded && !fontError) {
-    console.log('no loaded')
+    // console.log('no loaded')
     return null
   }
   return (
@@ -38,13 +38,13 @@ const styles = StyleSheet.create({
     overflow:'hidden',
     // minWidth:50,
     marginHorizontal: isPhone() ? 35 : 50,
+    
   },
   wrapper: {
-    // paddingHorizontal: isPhone() ? SPACING.space_10 : SPACING.space_20,
     paddingHorizontal: isPhone() ? SPACING.space_10 : SPACING.space_20,
-    // marginHorizontal:SPACING.space_20,
-    // zIndex: 1,
     // this background color fills the gap between the linear gradient and the border line
+    // height:100,
+    justifyContent:'center'
   },
   text: {
     textAlign: 'center',
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     color: COLOR.yellow300,
     textShadowColor: 'black',
     textShadowRadius: 5,
+    
     // this lineheight adjusts the text right in the center vertically 
     // because the fontsize is large.
     // lineHeight: 50,

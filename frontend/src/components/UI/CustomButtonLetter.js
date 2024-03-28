@@ -1,9 +1,12 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { BORDER_PURPLE, BORDER_RADIUS, BUTTON_COLOR, COLOR, SPACING } from '../../../theme/theme'
-import { isPhone } from '../../../utils/functions/playPage_2'
+import { isPhone, isLargeTablet } from '../../../utils/functions/playPage_2'
+
+const BUTTON_WIDTH = isLargeTablet() ? 80 : isPhone() ? 40 : 50
 
 const CustomButtonLetter = ({text, fontSize, onPress, pressedLetter, setPressedLetter}) => {
+
   const onPressIn = () => {
     setPressedLetter(text)
     console.log('press in')
@@ -11,7 +14,7 @@ const CustomButtonLetter = ({text, fontSize, onPress, pressedLetter, setPressedL
   const onPressOut = () => {
     setPressedLetter('')
   }
-
+  
   return (
     <Pressable onPress={()=>onPress(text)} onPressIn={onPressIn} onPressOut={onPressOut}>
       <View style={[styles.modalContainer, {opacity: (pressedLetter === text) ? 0.5: 1}]}>
@@ -43,7 +46,7 @@ const styles = StyleSheet.create({
     marginHorizontal: isPhone() ? SPACING.space_4 : SPACING.space_10,
   },
   wrapper: {
-    width:isPhone() ? 40 : 50,
+    width: BUTTON_WIDTH
   },
   text: {
     textAlign: 'center',
