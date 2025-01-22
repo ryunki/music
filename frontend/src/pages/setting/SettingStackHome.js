@@ -62,6 +62,7 @@ export default SettingStackHome
 
 const styles = StyleSheet.create({
   musicContainer:{
+    marginTop: 50,
     flex:1,
     alignItems:'center',
   },

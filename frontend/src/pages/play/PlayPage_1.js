@@ -319,9 +319,9 @@ const PlayPage_1 = () => {
             text={alertMessage}
           />
         )}
-        <View style={styles.changeMode}>
+        {/* <View style={styles.changeMode}>
          <CustomButton onPress={onPressMode} text={MODE} buttonProps={modeButtonProps}/>
-        </View>
+        </View> */}
         <CustomDrawingPage
           thickness={THICKNESS}
           currentPath={currentPath}

@@ -1,5 +1,6 @@
-// import { StatusBar } from 'expo-status-bar';
-import {StyleSheet, Text, View, StatusBar  } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaView } from 'react-native-safe-area-context';
+// import {StyleSheet, Text, View, StatusBar  } from 'react-native';
 import MainPage from './src/MainPage';
 // this is needed for native/stack to work
 import 'react-native-gesture-handler'
@@ -12,8 +13,10 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <StatusBar style="auto" />
-      <MainPage/>
+      {/* <SafeAreaView style={{ flex: 1}} translucent={true} backgroundColor="transparent"> */}
+        <StatusBar style="auto" />
+        <MainPage/>
+      {/* </SafeAreaView> */}
     </Provider>
   );
 }

@@ -220,15 +220,19 @@ export default PlayPage_2
 const styles = StyleSheet.create({
   scoreBoardContainer:{
     // backgroundColor:'gray',
+    marginTop: 25,
     alignItems:'center',
     justifyContent:'center',
     width:'100%'
   },
   containerLetters:{
     // backgroundColor:'gray',
+    paddingHorizontal:30,
     flexDirection:'row',
     alignItems:'center',
-    justifyContent:'center'
+    justifyContent:'center',
+    flexWrap: 'wrap',
+    gap: 15,
   },  
   linearGradientWrapper:{
     borderRadius: 20,

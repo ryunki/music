@@ -9,8 +9,12 @@
     },
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
       },
+      "ios":{
+        "simulator":true
+      },
+      "developmentClient": true,
       "distribution": "internal"
     },
     "production": {}

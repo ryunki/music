@@ -1,8 +1,8 @@
 
-import { ScrollView,  StyleSheet, Pressable, View} from 'react-native'
+import { ScrollView,  StyleSheet, Pressable, View, Text} from 'react-native'
 import Svg from 'react-native-svg'
 
-import { CARD_COLOR, COLOR, SPACING } from '../../../theme/theme'
+import { CARD_COLOR, COLOR, FONT_SIZE, SPACING } from '../../../theme/theme'
 import { LinearGradient } from 'expo-linear-gradient'
 import TrebleClefWithStaffLines from './components/TrebleClefWithStaffLines'
 import { screenSize } from '../../../utils/screenFunctions'
@@ -34,8 +34,12 @@ const PlayStackHome = ({navigation}) => {
                     viewBox="0 0 100 100"
                     > 
                       {item === 1 && <TrebleClefWithStaffLines stroke={'black'} strokeWidth={1.5} fillStaffLines={COLOR.pink100} fillTrebleClef={COLOR.yellow300}/>}
-                      {item === 2 && <NotesOnStaffLines stroke={'black'} strokeWidth={1.5} fillStaffLines={COLOR.pink100} fillTrebleClef={COLOR.yellow300}/>}
+                      {item === 2 && <NotesOnStaffLines stroke={'black'} strokeWidth={1.5} fillStaffLines={COLOR.pink100} fillTrebleClef={COLOR.yellow300}/>
+                      }
                   </Svg>
+                  {item === 1 && <Text style={styles.label}>Draw trebleclef</Text>}
+                  {item === 2 && <Text style={styles.label}>Learn notes</Text>}
+                      
                 </Pressable>
               </LinearGradient>
             </View>
@@ -50,6 +54,7 @@ const PlayStackHome = ({navigation}) => {
 const styles = StyleSheet.create({
   scrollContainer: {
     // flexGrow: 1,
+    marginTop: 20,
     alignItems: 'center',
     // width:360,
     // justifyContent: 'center',
@@ -89,6 +94,11 @@ const styles = StyleSheet.create({
   //     }
   //   }
   // }), 
+  label:{
+    position:'absolute',
+    color:COLOR.yellow100,
+    fontSize:FONT_SIZE.fontSize_18
+  }
 })
 
 export default PlayStackHome
